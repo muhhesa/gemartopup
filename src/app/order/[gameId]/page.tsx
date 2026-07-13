@@ -54,9 +54,9 @@ const getNominals = (gameId: string) => {
 };
 
 const PAYMENTS = [
-  { id: "qris", name: "QRIS", type: "E-Wallet/Bank", fee: 0 },
-  { id: "dana", name: "DANA", type: "E-Wallet", fee: 1000 },
-  { id: "bca", name: "BCA Virtual Account", type: "Bank Transfer", fee: 4000 },
+  { id: "ewallet", name: "OVO / GOPAY / DANA", type: "E-Wallet", fee: 0 },
+  { id: "bri", name: "Bank BRI", type: "Bank Transfer", fee: 0 },
+  { id: "bca", name: "Bank BCA", type: "Bank Transfer", fee: 0 },
 ];
 
 export default function OrderPage() {

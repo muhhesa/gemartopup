@@ -224,6 +224,7 @@ export default function InvoicePage() {
                 <h3 style={{ color: 'var(--primary)', marginBottom: '16px', textAlign: 'center', fontSize: '14px', letterSpacing: '1px' }}>TRANSFER PEMBAYARAN KE:</h3>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px', width: '100%' }}>
+                  {invoiceData?.paymentMethod === 'OVO / GOPAY / DANA' && (
                   <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px 20px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontWeight: '500', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '4px', fontSize: '13px' }}>OVO / GOPAY / DANA</div>
@@ -237,7 +238,9 @@ export default function InvoicePage() {
                       SALIN
                     </button>
                   </div>
+                  )}
 
+                  {invoiceData?.paymentMethod === 'Bank BRI' && (
                   <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px 20px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontWeight: '500', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '4px', fontSize: '13px' }}>Bank BRI</div>
@@ -251,7 +254,9 @@ export default function InvoicePage() {
                       SALIN
                     </button>
                   </div>
+                  )}
 
+                  {invoiceData?.paymentMethod === 'Bank BCA' && (
                   <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px 20px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontWeight: '500', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '4px', fontSize: '13px' }}>Bank BCA</div>
@@ -265,6 +270,7 @@ export default function InvoicePage() {
                       SALIN
                     </button>
                   </div>
+                  )}
                 </div>
                 
                 <button 
