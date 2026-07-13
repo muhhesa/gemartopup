@@ -5,6 +5,7 @@ import Link from "next/link";
 import "./order.css";
 import { useParams, useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
+import { supabase } from "@/lib/supabase";
 
 const GAME_DETAILS: Record<string, any> = {
   ml: { name: "MOBILE LEGENDS", code: "MLBB", hasZone: true, zoneName: "ZONE ID" },
@@ -117,23 +118,46 @@ export default function OrderPage() {
     setShowModal(true);
   };
 
-  const handleConfirmOrder = () => {
+  const handleConfirmOrder = async () => {
     const invoiceId = `INV-${game.code}-${Math.floor(Math.random() * 1000000)}`;
     
-    // Simpan data order ke localStorage
+    const targetId = game.hasZone ? `${userId} (${zoneId})` : userId;
+    const packageName = `${selectedNominalData?.name} (${game.name})`;
+    const paymentMethod = selectedPaymentData?.name;
+    const price = selectedNominalData?.price || 0;
+    const fee = selectedPaymentData?.fee || 0;
+
     const orderData = {
-      targetId: game.hasZone ? `${userId} (${zoneId})` : userId,
+      invoice_id: invoiceId,
+      target_id: targetId,
       nickname: nickname,
-      packageName: `${selectedNominalData?.name} (${game.name})`,
-      paymentMethod: selectedPaymentData?.name,
-      price: selectedNominalData?.price || 0,
-      fee: selectedPaymentData?.fee || 0,
-      total: totalPrice
+      package_name: packageName,
+      payment_method: paymentMethod,
+      price: price,
+      fee: fee,
+      total: totalPrice,
+      status: 'AWAITING_PAYMENT'
     };
     
-    localStorage.setItem("gemartopup_pending_order", JSON.stringify(orderData));
-    
-    router.push(`/invoice/${invoiceId}`);
+    try {
+      const { error } = await supabase.from('orders').insert([orderData]);
+      
+      if (error) {
+        console.error("Supabase Error:", error);
+        alert("Terjadi kesalahan saat memproses pesanan. Silakan coba lagi.");
+        return;
+      }
+      
+      // Fallback local storage for immediate reading
+      localStorage.setItem("gemartopup_pending_order", JSON.stringify({
+        targetId, nickname, packageName, paymentMethod, price, fee, total: totalPrice
+      }));
+      
+      router.push(`/invoice/${invoiceId}`);
+    } catch (err) {
+      console.error(err);
+      alert("Sistem sedang sibuk. Coba lagi.");
+    }
   };
 
   return (

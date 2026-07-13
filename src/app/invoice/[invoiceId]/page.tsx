@@ -5,6 +5,7 @@ import "./invoice.css";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
+import { supabase } from "@/lib/supabase";
 
 export default function InvoicePage() {
   const params = useParams();
@@ -20,7 +21,7 @@ export default function InvoicePage() {
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   
-  const ADMIN_WHATSAPP = "6281234567890"; 
+  const ADMIN_WHATSAPP = "628115234943"; 
   
   const handlePointerDown = (e: React.PointerEvent) => {
     setIsDragging(true);
@@ -41,37 +42,59 @@ export default function InvoicePage() {
     // Ubah judul dokumen untuk nama file PDF yang rapi saat diunduh
     document.title = `INVOICE_${invoiceId}_GEMARTOPUP`;
 
-    // Ambil data dinamis dari order page
-    const savedData = localStorage.getItem("gemartopup_pending_order");
-    if (savedData) {
-      setInvoiceData(JSON.parse(savedData));
-    } else {
-      // Fallback dummy data jika langsung buka link invoice
-      setInvoiceData({
-        targetId: "12345678 (1234)",
-        nickname: "PLAYER_1234",
-        packageName: "344 Diamonds (Mobile Legends)",
-        paymentMethod: "QRIS",
-        price: 58500,
-        fee: 0,
-        total: 58500
-      });
-    }
+    const fetchInvoiceData = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('orders')
+          .select('*')
+          .eq('invoice_id', invoiceId)
+          .single();
+        
+        if (data) {
+          setInvoiceData({
+            targetId: data.target_id,
+            nickname: data.nickname,
+            packageName: data.package_name,
+            paymentMethod: data.payment_method,
+            price: Number(data.price),
+            fee: Number(data.fee),
+            total: Number(data.total)
+          });
+          setStatus(data.status);
+        } else {
+          // Fallback
+          const savedData = localStorage.getItem("gemartopup_pending_order");
+          if (savedData) setInvoiceData(JSON.parse(savedData));
+        }
+      } catch (err) {
+        const savedData = localStorage.getItem("gemartopup_pending_order");
+        if (savedData) setInvoiceData(JSON.parse(savedData));
+      }
+    };
+    
+    fetchInvoiceData();
+
+    const pollInterval = setInterval(() => {
+      fetchInvoiceData();
+    }, 5000);
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          if (status === "AWAITING_PAYMENT") {
-             setStatus("EXPIRED");
-          }
+          // Only auto-expire if we don't have real DB status or if it's strictly awaiting
+          setStatus((currentStatus) => currentStatus === "AWAITING_PAYMENT" ? "EXPIRED" : currentStatus);
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
-    return () => clearInterval(timer);
-  }, [invoiceId, status]);
+    
+    return () => {
+      clearInterval(timer);
+      clearInterval(pollInterval);
+    };
+  }, [invoiceId]);
 
   const formatTime = (seconds: number) => {
     const h = Math.floor(seconds / 3600);
@@ -95,8 +118,18 @@ export default function InvoicePage() {
   };
 
   const handleWhatsApp = () => {
-    const message = `Halo Admin Gemartopup,%0A%0ASaya ingin konfirmasi pesanan:%0A*ID Invoice:* ${invoiceId}%0A*Status:* ${getStatusLabel(status)}%0A*Item:* ${invoiceData?.packageName}%0A*Total:* IDR ${invoiceData?.total.toLocaleString('id-ID')}%0A%0AMohon bantuannya, terima kasih!`;
+    let message = "";
+    if (status === "AWAITING_PAYMENT") {
+      message = `Halo Admin Gemartopup,%0A%0ASaya sudah melakukan pembayaran untuk pesanan:%0A*ID Invoice:* ${invoiceId}%0A*Item:* ${invoiceData?.packageName}%0A*Total:* IDR ${invoiceData?.total.toLocaleString('id-ID')}%0A%0ABerikut saya lampirkan bukti transfernya:`;
+    } else {
+      message = `Halo Admin Gemartopup,%0A%0ASaya ingin konfirmasi pesanan:%0A*ID Invoice:* ${invoiceId}%0A*Status:* ${getStatusLabel(status)}%0A*Item:* ${invoiceData?.packageName}%0A*Total:* IDR ${invoiceData?.total.toLocaleString('id-ID')}%0A%0AMohon bantuannya, terima kasih!`;
+    }
     window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${message}`, "_blank");
+  };
+
+  const handleCopy = (text: string) => {
+    navigator.clipboard.writeText(text);
+    alert("Berhasil disalin: " + text);
   };
 
   if (!invoiceData) return <div className="container" style={{ color: 'var(--primary)' }}>Loading data...</div>;
@@ -182,23 +215,64 @@ export default function InvoicePage() {
             </div>
 
             {status === "AWAITING_PAYMENT" && (
-              <div className="payment-instructions">
-                <div className="timer-box">
+              <div className="payment-instructions" style={{ textAlign: 'left', width: '100%' }}>
+                <div className="timer-box" style={{ marginBottom: '24px' }}>
                   <span className="timer-label">{t("inv.window")}:</span>
                   <span className="timer-value blink-fast">{formatTime(timeLeft)}</span>
                 </div>
                 
-                <div className="qris-placeholder">
-                  QR_CODE_RENDERING_AREA
-                  <div className="qris-scan-text">{t("inv.scan")}</div>
+                <h3 style={{ color: 'var(--primary)', marginBottom: '16px', textAlign: 'center', fontSize: '14px', letterSpacing: '1px' }}>TRANSFER PEMBAYARAN KE:</h3>
+                
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px', width: '100%' }}>
+                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px 20px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontWeight: '500', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '4px', fontSize: '13px' }}>OVO / GOPAY / DANA</div>
+                      <div style={{ fontSize: '22px', fontWeight: 'bold', letterSpacing: '1.5px', color: '#fff', marginBottom: '4px' }}>08115234943</div>
+                      <div style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.4)' }}>a.n. Muh Heri Sahar</div>
+                    </div>
+                    <button 
+                      onClick={() => handleCopy("08115234943")}
+                      style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '8px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', outline: 'none' }}
+                    >
+                      SALIN
+                    </button>
+                  </div>
+
+                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px 20px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontWeight: '500', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '4px', fontSize: '13px' }}>Bank BRI</div>
+                      <div style={{ fontSize: '22px', fontWeight: 'bold', letterSpacing: '1.5px', color: '#fff', marginBottom: '4px' }}>034001087436509</div>
+                      <div style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.4)' }}>a.n. Muh Heri Sahar</div>
+                    </div>
+                    <button 
+                      onClick={() => handleCopy("034001087436509")}
+                      style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '8px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', outline: 'none' }}
+                    >
+                      SALIN
+                    </button>
+                  </div>
+
+                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px 20px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div>
+                      <div style={{ fontWeight: '500', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '4px', fontSize: '13px' }}>Bank BCA</div>
+                      <div style={{ fontSize: '22px', fontWeight: 'bold', letterSpacing: '1.5px', color: '#fff', marginBottom: '4px' }}>7894308207</div>
+                      <div style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.4)' }}>a.n. Muh Heri Sahar</div>
+                    </div>
+                    <button 
+                      onClick={() => handleCopy("7894308207")}
+                      style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '8px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', outline: 'none' }}
+                    >
+                      SALIN
+                    </button>
+                  </div>
                 </div>
                 
                 <button 
                   className="btn-primary w-full no-print" 
-                  onClick={() => setStatus("PROCESS")}
-                  style={{ marginTop: '16px' }}
+                  onClick={handleWhatsApp}
+                  style={{ marginTop: '8px', padding: '16px', fontWeight: 'bold', fontSize: '13px', background: 'var(--success)', color: '#000', borderColor: 'var(--success)' }}
                 >
-                  {t("inv.sim")}
+                  SAYA SUDAH BAYAR - KONFIRMASI VIA WA
                 </button>
               </div>
             )}
