@@ -141,6 +141,25 @@ export default function OrderPage() {
         return;
       }
       
+      // Trigger Telegram notification
+      try {
+        await fetch('/api/notify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            invoiceId,
+            targetId,
+            nickname: orderData.nickname,
+            packageName,
+            paymentMethod,
+            price,
+            total: totalPrice
+          })
+        });
+      } catch (notifyErr) {
+        console.error('Failed to send notification:', notifyErr);
+      }
+      
       localStorage.setItem("gemartopup_pending_order", JSON.stringify({
         targetId, nickname: orderData.nickname, packageName, paymentMethod, price, fee, total: totalPrice
       }));
