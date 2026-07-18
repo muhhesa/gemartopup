@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-export async function GET(request: Request, { params }: { params: { invoiceId: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ invoiceId: string }> }) {
   try {
-    const { invoiceId } = params;
+    const { invoiceId } = await params;
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
