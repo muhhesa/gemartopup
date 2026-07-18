@@ -271,201 +271,6 @@
   .trending-code {
     font-size: 9px;
   }
-.game-card:hover {
-  border-color: var(--primary-color);
-  background-color: var(--surface-2);
-  transform: translateY(-2px);
-  box-shadow: 0 4px 15px rgba(255, 145, 0, 0.1);
-}
-
-.game-card.disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.game-card.disabled:hover {
-  border-color: var(--border-color);
-  transform: none;
-  box-shadow: none;
-}
-
-.game-code {
-  font-size: 28px;
-  font-weight: 800;
-  color: var(--text-main);
-  margin-bottom: 8px;
-  letter-spacing: 2px;
-}
-
-.game-card:hover .game-code {
-  color: var(--primary-color);
-}
-
-.game-name {
-  font-size: 14px;
-  color: var(--text-dim);
-  margin-bottom: 16px;
-}
-
-.game-status {
-  font-size: 12px;
-  color: var(--text-dim);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-top: 1px dashed var(--border-color);
-  padding-top: 12px;
-}
-
-.status-active {
-  color: var(--success);
-  font-weight: 700;
-}
-
-.status-maintenance {
-  color: var(--danger);
-  font-weight: 700;
-}
-
-/* Category Filter Styling */
-.category-filter {
-  display: flex;
-  gap: 24px;
-  margin-bottom: 24px;
-  border-bottom: 1px dashed var(--border-color);
-  padding-bottom: 16px;
-  overflow-x: auto;
-  scrollbar-width: none; /* Firefox */
-}
-
-.category-filter::-webkit-scrollbar {
-  display: none; /* Chrome/Safari */
-}
-
-.btn-category {
-  padding: 0;
-  background: transparent;
-  border: none;
-  color: var(--text-dim);
-  cursor: pointer;
-  font-family: inherit;
-  font-size: 16px;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-  transition: color 0.2s ease;
-  white-space: nowrap;
-}
-
-.btn-category:hover {
-  color: #ffffff;
-}
-
-.btn-category.active {
-  color: #ffffff;
-  font-weight: 800;
-}
-.home-layout {
-  display: flex;
-  gap: 32px;
-  align-items: flex-start;
-}
-.home-main-col {
-  flex: 1;
-  min-width: 0;
-}
-.trending-sidebar {
-  width: 300px;
-  background: var(--surface-1);
-  border: 1px solid var(--border-color);
-  border-radius: 4px;
-  padding: 16px;
-  position: sticky;
-  top: 100px;
-}
-.popular-header h2 {
-  font-size: 24px;
-  color: var(--primary-color);
-  margin-bottom: 24px;
-}
-.trending-header {
-  font-size: 16px;
-  font-weight: bold;
-  color: var(--primary-color);
-  margin-bottom: 16px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--border-color);
-}
-.trending-list {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-.trending-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
-  color: var(--text-main);
-  padding: 8px;
-  border-radius: 4px;
-  transition: background 0.2s;
-}
-.trending-item:hover {
-  background: rgba(255, 145, 0, 0.1);
-}
-.trending-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  color: var(--primary-color);
-  border: 1px solid rgba(255, 145, 0, 0.2);
-}
-.trending-name {
-  font-weight: bold;
-  font-size: 14px;
-}
-.trending-code {
-  font-size: 12px;
-  color: var(--text-dim);
-}
-.popular-badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background-color: var(--primary-color);
-  color: var(--bg-color);
-  font-size: 10px;
-  font-weight: bold;
-  padding: 2px 6px;
-  border-bottom-left-radius: 4px;
-}
-@media (max-width: 900px) {
-  .home-layout {
-    flex-direction: row;
-    gap: 8px;
-  }
-  .trending-sidebar {
-    width: 35%;
-    position: sticky;
-    top: 80px;
-    margin-top: 0;
-    padding: 8px;
-  }
-  .home-main-col {
-    flex: 1;
-    width: 65%;
-  }
-  .trending-name {
-    font-size: 11px;
-  }
-  .trending-code {
-    font-size: 9px;
-  }
   .trending-icon {
     width: 24px;
     height: 24px;
@@ -525,7 +330,21 @@
 }
 
 @media (max-width: 900px) {
-  .hero-container {
+  @media (max-width: 600px) {
+  .home-layout {
+    flex-direction: column-reverse;
+  }
+  .trending-sidebar {
+    width: 100%;
+    position: static;
+    margin-bottom: 24px;
+  }
+  .home-main-col {
+    width: 100%;
+  }
+}
+
+.hero-container {
     flex-direction: column;
   }
   .clock-widget {
