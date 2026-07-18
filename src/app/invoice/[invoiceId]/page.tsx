@@ -16,27 +16,7 @@ export default function InvoicePage() {
   // Available statuses: AWAITING_PAYMENT, PROCESS, PENDING, SUCCESS, FAILED, EXPIRED
   const [status, setStatus] = useState("AWAITING_PAYMENT");
   const [invoiceData, setInvoiceData] = useState<any>(null);
-  const [isSimMinimized, setIsSimMinimized] = useState(false);
-  const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
-  
-  const ADMIN_WHATSAPP = "628115234943"; 
-  
-  const handlePointerDown = (e: React.PointerEvent) => {
-    setIsDragging(true);
-    setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
-    e.currentTarget.setPointerCapture(e.pointerId);
-  };
-  const handlePointerMove = (e: React.PointerEvent) => {
-    if (isDragging) {
-      setPosition({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
-    }
-  };
-  const handlePointerUp = (e: React.PointerEvent) => {
-    setIsDragging(false);
-    e.currentTarget.releasePointerCapture(e.pointerId);
-  }; 
+  const ADMIN_WHATSAPP = "628115234943";
 
   useEffect(() => {
     // Ubah judul dokumen untuk nama file PDF yang rapi saat diunduh
@@ -154,35 +134,6 @@ export default function InvoicePage() {
 
   return (
     <div className="container" style={{ position: 'relative' }}>
-      
-      {/* PANEL SIMULASI ADMIN (DEVELOPMENT ONLY) */}
-      <div 
-        className={`sim-panel no-print ${isSimMinimized ? 'minimized' : ''}`}
-        style={{ transform: `translate(${position.x}px, ${position.y}px)`, touchAction: 'none' }}
-      >
-        <div 
-          style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: isSimMinimized ? 'none' : '1px solid var(--border-color)', paddingBottom: isSimMinimized ? 0 : '4px', marginBottom: isSimMinimized ? 0 : '8px', cursor: isDragging ? 'grabbing' : 'grab' }}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-        >
-          <h4 style={{ margin: 0, borderBottom: 'none', paddingBottom: 0, pointerEvents: 'none' }}>PANEL SIMULASI</h4>
-          <button style={{ border: 'none', padding: '2px 8px', background: 'transparent' }} onClick={() => setIsSimMinimized(!isSimMinimized)}>
-            {isSimMinimized ? 'Buka 🔼' : 'Tutup 🔽'}
-          </button>
-        </div>
-        {!isSimMinimized && (
-          <>
-            <button onClick={() => setStatus("AWAITING_PAYMENT")}>1. RESET (BELUM BAYAR)</button>
-            <button onClick={() => setStatus("PROCESS")}>2. UBAH KE PROSES</button>
-            <button onClick={() => setStatus("PENDING")} style={{ color: 'var(--danger)', borderColor: 'var(--danger)' }}>3. UBAH KE PENDING</button>
-            <button onClick={() => setStatus("SUCCESS")} style={{ color: 'var(--success)', borderColor: 'var(--success)' }}>4. UBAH KE SUKSES</button>
-            <button onClick={() => setStatus("FAILED")} style={{ color: 'var(--danger)', borderColor: 'var(--danger)' }}>5. UBAH KE BATAL</button>
-          </>
-        )}
-      </div>
-
       <div className="invoice-container">
         <div className="terminal-box" id="print-area">
           <div className="invoice-header">
