@@ -24,16 +24,15 @@ export default function InvoicePage() {
 
     const fetchInvoiceData = async () => {
       try {
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('invoice_id', invoiceId)
-          .single();
+        const res = await fetch(`/api/invoice/${invoiceId}`);
+        const result = await res.json();
         
-        if (error) {
-          console.error("Supabase fetch error:", error);
-          throw error;
+        if (!res.ok) {
+          console.error("Fetch error:", result.message);
+          throw new Error(result.message);
         }
+
+        const data = result.data;
 
         if (data) {
           setInvoiceData({

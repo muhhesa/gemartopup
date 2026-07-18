@@ -35,14 +35,15 @@ export default function AdminDashboard() {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from("orders")
-        .select("*")
-        .order("created_at", { ascending: false })
-        .limit(100);
+      const res = await fetch('/api/admin/orders', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      const result = await res.json();
 
-      if (error) throw error;
-      setOrders(data || []);
+      if (!res.ok) throw new Error(result.message || "Failed to load");
+      setOrders(result.data || []);
     } catch (err: any) {
       console.error("Error fetching orders:", err.message);
       alert("Gagal memuat data pesanan.");
