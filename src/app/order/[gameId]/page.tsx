@@ -112,60 +112,41 @@ export default function OrderPage() {
       return;
     }
 
-    const invoiceId = `INV-${game.code}-${Math.floor(Math.random() * 1000000)}`;
-    
     const targetId = getTargetIdString();
-    const packageName = `${selectedNominalData?.name} (${game.name})`;
-    const paymentMethod = selectedPaymentData?.name;
-    const price = selectedNominalData?.price || 0;
-    const fee = selectedPaymentData?.fee || 0;
-
-    const orderData = {
-      invoice_id: invoiceId,
-      target_id: targetId,
-      nickname: config.needsNicknameCheck ? nickname : null,
-      package_name: packageName,
-      payment_method: paymentMethod,
-      price: price,
-      fee: fee,
-      total: totalPrice,
-      status: 'AWAITING_PAYMENT'
-    };
     
     try {
-      const { error } = await supabase.from('orders').insert([orderData]);
-      
-      if (error) {
-        console.error("Supabase Error:", error);
-        alert("Terjadi kesalahan saat memproses pesanan. Silakan coba lagi.");
+      const response = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          gameId,
+          nominalId: selectedNominal,
+          paymentId: selectedPayment,
+          targetId,
+          nickname: config.needsNicknameCheck ? nickname : null
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        alert(result.error || "Terjadi kesalahan saat memproses pesanan.");
         return;
       }
       
-      // Trigger Telegram notification
-      try {
-        await fetch('/api/notify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            invoiceId,
-            targetId,
-            nickname: orderData.nickname,
-            packageName,
-            paymentMethod,
-            price,
-            total: totalPrice
-          })
-        });
-      } catch (notifyErr) {
-        console.error('Failed to send notification:', notifyErr);
-      }
-      
+      // Save for immediate display on invoice page
       localStorage.setItem("gemartopup_pending_order", JSON.stringify({
-        targetId, nickname: orderData.nickname, packageName, paymentMethod, price, fee, total: totalPrice, timestamp: Date.now()
+        targetId, 
+        nickname: result.orderData.nickname, 
+        packageName: result.orderData.package_name, 
+        paymentMethod: result.orderData.payment_method, 
+        price: result.orderData.price, 
+        fee: result.orderData.fee, 
+        total: result.orderData.total, 
+        timestamp: Date.now()
       }));
 
-
-      router.push(`/invoice/${invoiceId}`);
+      router.push(`/invoice/${result.invoiceId}`);
     } catch (err) {
       console.error(err);
       alert("Sistem sedang sibuk. Coba lagi.");
