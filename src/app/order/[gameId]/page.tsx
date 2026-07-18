@@ -44,8 +44,6 @@ export default function OrderPage() {
   const [nickname, setNickname] = useState<string | null>(null);
   const [isChecking, setIsChecking] = useState(false);
   const [checkError, setCheckError] = useState<string | null>(null);
-  
-  const [showModal, setShowModal] = useState(false);
 
   const nominalsList = getNominals(gameId as string);
   const selectedNominalData = nominalsList.find(n => n.id === selectedNominal);
@@ -104,7 +102,7 @@ export default function OrderPage() {
     }, 1000);
   };
 
-  const handleCheckoutClick = () => {
+  const handleConfirmOrder = async () => {
     if (!isFieldsComplete() || !selectedNominal || !selectedPayment) {
       alert(t("order.alert"));
       return;
@@ -113,11 +111,7 @@ export default function OrderPage() {
       alert("AKUN TIDAK DITEMUKAN ATAU BELUM DICEK. TIDAK DAPAT MELANJUTKAN PESANAN!");
       return;
     }
-    // Tampilkan modal konfirmasi
-    setShowModal(true);
-  };
 
-  const handleConfirmOrder = async () => {
     const invoiceId = `INV-${game.code}-${Math.floor(Math.random() * 1000000)}`;
     
     const targetId = getTargetIdString();
@@ -321,32 +315,14 @@ export default function OrderPage() {
             <button 
               className="btn-primary mt-4" 
               style={{ width: '100%', height: '56px', fontSize: '16px' }}
-              onClick={handleCheckoutClick}
+              onClick={handleConfirmOrder}
               disabled={!isFieldsComplete() || !selectedNominal || !selectedPayment || (config.needsNicknameCheck && !nickname)}
             >
-              {t("order.pay")}
+              BAYAR SEKARANG
             </button>
           </div>
         </aside>
       </div>
-
-      {showModal && (
-        <div className="modal-overlay">
-          <div className="modal-content terminal-box">
-            <h2 style={{ marginBottom: '16px' }}>Konfirmasi Pesanan</h2>
-            <p style={{ marginBottom: '8px' }}>Target: <strong>{getTargetIdString()}</strong></p>
-            {config.needsNicknameCheck && <p style={{ marginBottom: '8px' }}>Nickname: <strong>{nickname}</strong></p>}
-            <p style={{ marginBottom: '8px' }}>Item: <strong>{selectedNominalData?.name} ({game.name})</strong></p>
-            <p style={{ marginBottom: '8px' }}>Payment: <strong>{selectedPaymentData?.name}</strong></p>
-            <h3 style={{ margin: '16px 0', color: 'var(--primary-color)' }}>Total: IDR {totalPrice.toLocaleString('id-ID')}</h3>
-            
-            <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
-              <button className="btn-primary" style={{ flex: 1 }} onClick={handleConfirmOrder}>Bayar Sekarang</button>
-              <button className="btn-category" style={{ flex: 1 }} onClick={() => setShowModal(false)}>Batal</button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
