@@ -12,8 +12,8 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) 
       <div className={`sidebar-overlay ${isOpen ? 'open' : ''}`} onClick={onClose}></div>
       <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
         <div className="sidebar-close" onClick={onClose}>X</div>
-        <div className="logo" style={{ padding: '0 24px' }}>
-          <span className="logo-icon blink">█</span>
+        <div className="logo" style={{ padding: '0 24px', display: 'flex', alignItems: 'center' }}>
+          <img src="/logo.png" alt="Logo" style={{ height: '32px', marginRight: '12px', borderRadius: '4px' }} />
           <span className="logo-text">GEMARTOPUP</span>
         </div>
         <div className="sidebar-links">
@@ -40,8 +40,8 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar: () => void }) {
       <div className="container header-content">
         <div style={{ display: 'flex', alignItems: 'center' }}>
           <span className="hamburger-btn" onClick={toggleSidebar}>☰</span>
-          <Link href="/" className="logo">
-            <span className="logo-icon blink">█</span>
+          <Link href="/" className="logo" style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/logo.png" alt="Logo" style={{ height: '32px', marginRight: '8px', borderRadius: '4px' }} />
             <span className="logo-text">GEMARTOPUP</span>
           </Link>
         </div>
@@ -73,8 +73,8 @@ function FooterContent() {
     <footer className="main-footer">
       <div className="container footer-top">
         <div className="footer-col brand-col">
-          <Link href="/" className="logo">
-            <span className="logo-icon blink">█</span>
+          <Link href="/" className="logo" style={{ display: 'flex', alignItems: 'center' }}>
+            <img src="/logo.png" alt="Logo" style={{ height: '32px', marginRight: '8px', borderRadius: '4px' }} />
             <span className="logo-text">GEMARTOPUP</span>
           </Link>
           <p className="footer-desc">
