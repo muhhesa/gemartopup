@@ -120,9 +120,9 @@ export default function InvoicePage() {
   const handleWhatsApp = () => {
     let message = "";
     if (status === "AWAITING_PAYMENT") {
-      message = `Halo Admin Gemartopup,%0A%0ASaya sudah melakukan pembayaran untuk pesanan:%0A*ID Invoice:* ${invoiceId}%0A*Item:* ${invoiceData?.packageName}%0A*Total:* IDR ${invoiceData?.total.toLocaleString('id-ID')}%0A%0ABerikut saya lampirkan bukti transfernya:`;
+      message = `Halo Admin Gemartopup,%0A%0ASaya sudah melakukan pembayaran untuk pesanan:%0A*ID Invoice:* ${invoiceId}%0A*Target ID:* ${invoiceData?.targetId}%0A*Item:* ${invoiceData?.packageName}%0A*Total:* IDR ${invoiceData?.total.toLocaleString('id-ID')}%0A%0ABerikut saya lampirkan bukti transfernya:`;
     } else {
-      message = `Halo Admin Gemartopup,%0A%0ASaya ingin konfirmasi pesanan:%0A*ID Invoice:* ${invoiceId}%0A*Status:* ${getStatusLabel(status)}%0A*Item:* ${invoiceData?.packageName}%0A*Total:* IDR ${invoiceData?.total.toLocaleString('id-ID')}%0A%0AMohon bantuannya, terima kasih!`;
+      message = `Halo Admin Gemartopup,%0A%0ASaya ingin konfirmasi pesanan:%0A*ID Invoice:* ${invoiceId}%0A*Status:* ${getStatusLabel(status)}%0A*Target ID:* ${invoiceData?.targetId}%0A*Item:* ${invoiceData?.packageName}%0A*Total:* IDR ${invoiceData?.total.toLocaleString('id-ID')}%0A%0AMohon bantuannya, terima kasih!`;
     }
     window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${message}`, "_blank");
   };
@@ -186,7 +186,7 @@ export default function InvoicePage() {
             
             <div className="detail-row">
               <span className="label">{t("inv.target")}:</span>
-              <span className="value">{invoiceData.targetId} - {invoiceData.nickname}</span>
+              <span className="value">{invoiceData.targetId}{invoiceData.nickname ? ` - ${invoiceData.nickname}` : ''}</span>
             </div>
             <div className="detail-row">
               <span className="label">{t("inv.package")}:</span>
