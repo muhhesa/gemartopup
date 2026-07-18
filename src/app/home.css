@@ -526,7 +526,7 @@
 
 @media (max-width: 900px) {
   .hero-container {
-    flex-direction: column-reverse;
+    flex-direction: column;
   }
   .clock-widget {
     padding: 16px;
