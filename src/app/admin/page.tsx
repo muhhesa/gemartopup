@@ -10,16 +10,25 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
 
-  // Hardcoded for now. In a real app, use environment variables or proper auth.
-  const ADMIN_PASSWORD = "bos";
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password === ADMIN_PASSWORD) {
-      setIsAuthenticated(true);
-      fetchOrders();
-    } else {
-      alert("Password salah!");
+    setLoading(true);
+    try {
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password })
+      });
+      if (res.ok) {
+        setIsAuthenticated(true);
+        fetchOrders();
+      } else {
+        alert("Password salah!");
+      }
+    } catch (err) {
+      alert("Terjadi kesalahan.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -44,18 +53,21 @@ export default function AdminDashboard() {
 
   const updateStatus = async (invoiceId: string, newStatus: string) => {
     try {
-      const { error } = await supabase
-        .from("orders")
-        .update({ status: newStatus })
-        .eq("invoice_id", invoiceId);
-
-      if (error) throw error;
+      const res = await fetch('/api/admin/update-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ invoiceId, newStatus, password })
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.message || "Failed to update");
       
       // Update local state
       setOrders(orders.map(o => o.invoice_id === invoiceId ? { ...o, status: newStatus } : o));
     } catch (err: any) {
       console.error("Error updating status:", err.message);
-      alert("Gagal mengubah status pesanan.");
+      alert(`Gagal mengubah status: ${err.message}`);
     }
   };
 
