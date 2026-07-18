@@ -50,6 +50,11 @@ export default function InvoicePage() {
           .eq('invoice_id', invoiceId)
           .single();
         
+        if (error) {
+          console.error("Supabase fetch error:", error);
+          throw error;
+        }
+
         if (data) {
           setInvoiceData({
             targetId: data.target_id,
@@ -61,14 +66,27 @@ export default function InvoicePage() {
             total: Number(data.total)
           });
           setStatus(data.status);
-        } else {
-          // Fallback
-          const savedData = localStorage.getItem("gemartopup_pending_order");
-          if (savedData) setInvoiceData(JSON.parse(savedData));
+
+          // Hitung sisa waktu dari created_at
+          if (data.created_at) {
+            const createdAt = new Date(data.created_at).getTime();
+            const now = Date.now();
+            const diffSeconds = Math.floor((now - createdAt) / 1000);
+            const remaining = Math.max(0, 86400 - diffSeconds);
+            setTimeLeft(remaining);
+          }
         }
       } catch (err) {
+        console.error("Error fetching invoice from DB:", err);
         const savedData = localStorage.getItem("gemartopup_pending_order");
-        if (savedData) setInvoiceData(JSON.parse(savedData));
+        if (savedData) {
+          const parsed = JSON.parse(savedData);
+          setInvoiceData(parsed);
+          if (parsed.timestamp) {
+            const diffSeconds = Math.floor((Date.now() - parsed.timestamp) / 1000);
+            setTimeLeft(Math.max(0, 86400 - diffSeconds));
+          }
+        }
       }
     };
     

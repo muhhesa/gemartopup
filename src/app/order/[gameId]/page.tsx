@@ -161,7 +161,7 @@ export default function OrderPage() {
       }
       
       localStorage.setItem("gemartopup_pending_order", JSON.stringify({
-        targetId, nickname: orderData.nickname, packageName, paymentMethod, price, fee, total: totalPrice
+        targetId, nickname: orderData.nickname, packageName, paymentMethod, price, fee, total: totalPrice, timestamp: Date.now()
       }));
       
       router.push(`/invoice/${invoiceId}`);
