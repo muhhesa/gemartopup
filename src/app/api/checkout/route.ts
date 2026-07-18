@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import catalogData from "@/data/catalog.json";
+import { sendTelegramNotification } from "@/lib/telegram";
 
 // Inisialisasi Supabase menggunakan Service Role Key agar bisa menembus RLS
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -72,26 +73,21 @@ export async function POST(req: Request) {
 
     // 8. Kirim Notifikasi Telegram
     try {
-      // Kita panggil API notify lokal
-      const protocol = req.headers.get('x-forwarded-proto') || 'http';
-      const host = req.headers.get('host');
-      const baseUrl = `${protocol}://${host}`;
+      const message = `
+🚨 *PESANAN BARU MASUK!* 🚨
 
-      await fetch(`${baseUrl}/api/notify`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          invoiceId,
-          targetId,
-          nickname: orderData.nickname,
-          packageName,
-          paymentMethod,
-          price,
-          total: totalPrice
-        })
-      });
+*Invoice:* \`${invoiceId}\`
+*Status:* ⏳ Menunggu Pembayaran
+*Item:* ${packageName}
+*Target ID:* \`${targetId}\` ${nickname ? `(${nickname})` : ''}
+*Metode Bayar:* ${paymentMethod}
+*Total Tagihan:* *Rp ${Number(totalPrice).toLocaleString('id-ID')}*
+
+[Lihat Dashboard Admin](https://gemartopup.vercel.app/admin)
+`;
+      await sendTelegramNotification(message);
     } catch (notifyErr) {
-      console.error('Failed to send notification via internal API:', notifyErr);
+      console.error('Failed to send notification:', notifyErr);
       // Walaupun notif gagal, pesanan tetap sukses
     }
 
