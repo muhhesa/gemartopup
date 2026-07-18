@@ -8,15 +8,12 @@ import { useLanguage } from "@/context/LanguageContext";
 import { supabase } from "@/lib/supabase";
 
 import catalogData from "@/data/catalog.json";
+import { getConfig } from "@/data/catalogConfig";
 
+// Build game details map
 const GAME_DETAILS: Record<string, any> = {};
 catalogData.games.forEach((g: any) => {
-  GAME_DETAILS[g.id] = {
-    name: g.name,
-    code: g.code,
-    hasZone: g.hasZone,
-    zoneName: g.hasZone ? (g.name.toUpperCase().includes("GENSHIN") || g.name.toUpperCase().includes("HONKAI") ? "SERVER" : "ZONE ID") : undefined
-  };
+  GAME_DETAILS[g.id] = g;
 });
 
 const getNominals = (gameId: string): any[] => {
@@ -35,10 +32,12 @@ export default function OrderPage() {
   const { t } = useLanguage();
   const gameId = params.gameId as string;
   
-  const game = GAME_DETAILS[gameId] || GAME_DETAILS["ml"];
+  const game = GAME_DETAILS[gameId] || GAME_DETAILS["mlbb"] || catalogData.games[0];
+  const config = getConfig(gameId, game.category);
   
-  const [userId, setUserId] = useState("");
-  const [zoneId, setZoneId] = useState("");
+  // State for dynamic fields
+  const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
+  
   const [selectedNominal, setSelectedNominal] = useState<number | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
 
@@ -54,8 +53,37 @@ export default function OrderPage() {
   
   const totalPrice = (selectedNominalData?.price || 0) + (selectedPaymentData?.fee || 0);
 
+  const handleFieldChange = (fieldId: string, value: string, type: string) => {
+    if (type === 'number') {
+      value = value.replace(/[^0-9]/g, '');
+    }
+    setFieldValues(prev => ({ ...prev, [fieldId]: value }));
+    setNickname(null);
+    setCheckError(null);
+  };
+
+  const isFieldsComplete = () => {
+    for (const field of config.fields) {
+      if (field.required && !fieldValues[field.id]) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const getTargetIdString = () => {
+    if (config.fields.length === 1) return fieldValues[config.fields[0].id] || "";
+    if (config.fields.length === 2) {
+       if (gameId === 'valorant') {
+         return `${fieldValues[config.fields[0].id]}#${fieldValues[config.fields[1].id]}`;
+       }
+       return `${fieldValues[config.fields[0].id]} (${fieldValues[config.fields[1].id]})`;
+    }
+    return Object.values(fieldValues).join(" ");
+  };
+
   const handleCheckNickname = () => {
-    if (!userId || (game.hasZone && !zoneId)) {
+    if (!isFieldsComplete()) {
       alert(t("order.alert"));
       return;
     }
@@ -66,21 +94,22 @@ export default function OrderPage() {
 
     // Simulate API call and validation
     setTimeout(() => {
-      if (userId.length < 5) {
+      const primaryVal = fieldValues[config.fields[0].id] || "";
+      if (primaryVal.length < 5 && config.fields[0].type !== 'email') {
         setCheckError("AKUN TIDAK DITEMUKAN / INVALID ID");
       } else {
-        setNickname(`PLAYER_${userId.substring(0,4)}`);
+        setNickname(`PLAYER_${primaryVal.substring(0,4)}`);
       }
       setIsChecking(false);
     }, 1000);
   };
 
   const handleCheckoutClick = () => {
-    if (!userId || !selectedNominal || !selectedPayment || (game.hasZone && !zoneId)) {
+    if (!isFieldsComplete() || !selectedNominal || !selectedPayment) {
       alert(t("order.alert"));
       return;
     }
-    if (checkError || !nickname) {
+    if (config.needsNicknameCheck && (checkError || !nickname)) {
       alert("AKUN TIDAK DITEMUKAN ATAU BELUM DICEK. TIDAK DAPAT MELANJUTKAN PESANAN!");
       return;
     }
@@ -91,7 +120,7 @@ export default function OrderPage() {
   const handleConfirmOrder = async () => {
     const invoiceId = `INV-${game.code}-${Math.floor(Math.random() * 1000000)}`;
     
-    const targetId = game.hasZone ? `${userId} (${zoneId})` : userId;
+    const targetId = getTargetIdString();
     const packageName = `${selectedNominalData?.name} (${game.name})`;
     const paymentMethod = selectedPaymentData?.name;
     const price = selectedNominalData?.price || 0;
@@ -100,7 +129,7 @@ export default function OrderPage() {
     const orderData = {
       invoice_id: invoiceId,
       target_id: targetId,
-      nickname: nickname,
+      nickname: config.needsNicknameCheck ? nickname : null,
       package_name: packageName,
       payment_method: paymentMethod,
       price: price,
@@ -118,9 +147,8 @@ export default function OrderPage() {
         return;
       }
       
-      // Fallback local storage for immediate reading
       localStorage.setItem("gemartopup_pending_order", JSON.stringify({
-        targetId, nickname, packageName, paymentMethod, price, fee, total: totalPrice
+        targetId, nickname: orderData.nickname, packageName, paymentMethod, price, fee, total: totalPrice
       }));
       
       router.push(`/invoice/${invoiceId}`);
@@ -146,37 +174,49 @@ export default function OrderPage() {
           <section className="terminal-box mb-4">
             <h2 className="step-title">{t("order.step1")}</h2>
             <div className="input-group">
-              <div className="form-control">
-                <label>{t("order.userid")}</label>
-                <input 
-                  type="text" 
-                  className="input-field" 
-                  value={userId}
-                  onChange={(e) => { setUserId(e.target.value); setNickname(null); setCheckError(null); }}
-                />
-              </div>
-              {game.hasZone && (
-                <div className="form-control">
-                  <label>{t("order.zoneid")}</label>
-                  <input 
-                    type="text" 
-                    className="input-field" 
-                    value={zoneId}
-                    onChange={(e) => { setZoneId(e.target.value); setNickname(null); setCheckError(null); }}
-                  />
+              {config.fields.map((field) => (
+                <div className="form-control" key={field.id}>
+                  <label>{field.labelId} {field.required ? '*' : ''}</label>
+                  {field.type === 'dropdown' && field.options ? (
+                    <select 
+                      className="input-field"
+                      value={fieldValues[field.id] || ""}
+                      onChange={(e) => handleFieldChange(field.id, e.target.value, field.type)}
+                      style={{ 
+                        background: '#0a0a0a', 
+                        color: 'var(--primary-color)',
+                        border: '1px solid var(--border-color)' 
+                      }}
+                    >
+                      <option value="">-- Pilih --</option>
+                      {field.options.map(opt => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input 
+                      type={field.type === 'email' ? 'email' : 'text'} 
+                      className="input-field" 
+                      placeholder={field.placeholder || ""}
+                      value={fieldValues[field.id] || ""}
+                      onChange={(e) => handleFieldChange(field.id, e.target.value, field.type)}
+                    />
+                  )}
+                </div>
+              ))}
+              
+              {config.needsNicknameCheck && (
+                <div className="form-control" style={{ display: 'flex', alignItems: 'flex-end' }}>
+                   <button 
+                    className="btn-primary" 
+                    style={{ height: '48px', width: '100%' }}
+                    onClick={handleCheckNickname}
+                    disabled={isChecking || !isFieldsComplete()}
+                   >
+                     {isChecking ? "..." : t("order.check")}
+                   </button>
                 </div>
               )}
-              
-              <div className="form-control" style={{ display: 'flex', alignItems: 'flex-end' }}>
-                 <button 
-                  className="btn-primary" 
-                  style={{ height: '48px', width: '100%' }}
-                  onClick={handleCheckNickname}
-                  disabled={isChecking || !userId || (game.hasZone && !zoneId)}
-                 >
-                   {isChecking ? "..." : t("order.check")}
-                 </button>
-              </div>
             </div>
             
             {nickname && (
@@ -248,78 +288,61 @@ export default function OrderPage() {
             <div className="summary-details">
               <div className="summary-row">
                 <span>{t("order.item")}:</span>
-                <span>{selectedNominalData ? selectedNominalData.name : '---'}</span>
+                <span>{selectedNominalData ? selectedNominalData.name : "-"}</span>
               </div>
               <div className="summary-row">
-                <span>{t("order.price")}:</span>
-                <span>{selectedNominalData ? `IDR ${selectedNominalData.price.toLocaleString('id-ID')}` : '---'}</span>
+                <span>{t("order.target")}:</span>
+                <span>{isFieldsComplete() ? getTargetIdString() : "-"}</span>
               </div>
               <div className="summary-row">
-                <span>{t("order.fee")}:</span>
-                <span>{selectedPaymentData ? `IDR ${selectedPaymentData.fee.toLocaleString('id-ID')}` : '---'}</span>
+                <span>Nickname:</span>
+                <span>{config.needsNicknameCheck ? (nickname || "-") : "Tidak Perlu"}</span>
               </div>
-              
+              <div className="summary-row">
+                <span>Payment:</span>
+                <span>{selectedPaymentData ? selectedPaymentData.name : "-"}</span>
+              </div>
               <div className="summary-divider"></div>
-              
-              <div className="summary-total">
-                <span>{t("order.total")}:</span>
-                <span className="total-price">
-                  IDR {totalPrice.toLocaleString('id-ID')}
-                </span>
+              <div className="summary-row" style={{ fontWeight: 'bold' }}>
+                <span>Subtotal:</span>
+                <span>IDR {selectedNominalData ? selectedNominalData.price.toLocaleString('id-ID') : 0}</span>
+              </div>
+              <div className="summary-row">
+                <span>Fee:</span>
+                <span>IDR {selectedPaymentData ? selectedPaymentData.fee.toLocaleString('id-ID') : 0}</span>
+              </div>
+              <div className="summary-divider"></div>
+              <div className="summary-row total-row">
+                <span>Total:</span>
+                <span>IDR {totalPrice.toLocaleString('id-ID')}</span>
               </div>
             </div>
 
             <button 
-              className="btn-primary w-full mt-4" 
+              className="btn-primary mt-4" 
+              style={{ width: '100%', height: '56px', fontSize: '16px' }}
               onClick={handleCheckoutClick}
+              disabled={!isFieldsComplete() || !selectedNominal || !selectedPayment || (config.needsNicknameCheck && !nickname)}
             >
-              {t("order.execute")}
+              {t("order.pay")}
             </button>
           </div>
         </aside>
       </div>
 
       {showModal && (
-        <div style={{
-          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-          background: 'rgba(0,0,0,0.8)', zIndex: 100,
-          display: 'flex', alignItems: 'center', justifyContent: 'center'
-        }}>
-          <div className="terminal-box" style={{ width: '90%', maxWidth: '400px' }}>
-            <h2 style={{ color: 'var(--primary)', marginBottom: '16px', borderBottom: '1px dashed var(--primary)', paddingBottom: '8px' }}>
-              KONFIRMASI PESANAN
-            </h2>
+        <div className="modal-overlay">
+          <div className="modal-content terminal-box">
+            <h2 style={{ marginBottom: '16px' }}>Konfirmasi Pesanan</h2>
+            <p style={{ marginBottom: '8px' }}>Target: <strong>{getTargetIdString()}</strong></p>
+            {config.needsNicknameCheck && <p style={{ marginBottom: '8px' }}>Nickname: <strong>{nickname}</strong></p>}
+            <p style={{ marginBottom: '8px' }}>Item: <strong>{selectedNominalData?.name} ({game.name})</strong></p>
+            <p style={{ marginBottom: '8px' }}>Payment: <strong>{selectedPaymentData?.name}</strong></p>
+            <h3 style={{ margin: '16px 0', color: 'var(--primary-color)' }}>Total: IDR {totalPrice.toLocaleString('id-ID')}</h3>
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-dim)' }}>ID Tujuan:</span>
-                <span>{game.hasZone ? `${userId} (${zoneId})` : userId}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-dim)' }}>Nickname:</span>
-                <span style={{ color: 'var(--success)' }}>{nickname}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-dim)' }}>Item:</span>
-                <span>{selectedNominalData?.name}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span style={{ color: 'var(--text-dim)' }}>Pembayaran:</span>
-                <span>{selectedPaymentData?.name}</span>
-              </div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px', paddingTop: '8px', borderTop: '1px dashed var(--border-color)' }}>
-                <span style={{ color: 'var(--text-dim)' }}>Total:</span>
-                <span style={{ color: 'var(--primary)', fontWeight: 'bold' }}>IDR {totalPrice.toLocaleString('id-ID')}</span>
-              </div>
-            </div>
-            
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <button className="btn-primary" style={{ flex: 1, background: 'transparent', color: 'var(--danger)', borderColor: 'var(--danger)' }} onClick={() => setShowModal(false)}>
-                BATAL
-              </button>
-              <button className="btn-primary" style={{ flex: 1 }} onClick={handleConfirmOrder}>
-                YAKIN & LANJUT
-              </button>
+            <div style={{ display: 'flex', gap: '16px', marginTop: '24px' }}>
+              <button className="btn-primary" style={{ flex: 1 }} onClick={handleConfirmOrder}>Bayar Sekarang</button>
+              <button className="btn-category" style={{ flex: 1 }} onClick={() => setShowModal(false)}>Batal</button>
             </div>
           </div>
         </div>
