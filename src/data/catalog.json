@@ -1196,12 +1196,6 @@
     ],
     "itunes": [
       {
-        "id": 1,
-        "name": "5 Diamond",
-        "price": 1040,
-        "badge": null
-      },
-      {
         "id": 2,
         "name": "US Region $5",
         "price": 86793,
