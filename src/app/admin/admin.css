@@ -109,26 +109,34 @@
 }
 
 .status-select {
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--border-color);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
-  padding: 6px 12px;
+  padding: 8px 12px;
   border-radius: 6px;
   font-size: 13px;
   outline: none;
   cursor: pointer;
+  transition: all 0.2s;
 }
 
 .status-select:focus {
-  border-color: var(--primary);
+  border-color: rgba(255, 255, 255, 0.3);
 }
 
-/* Status Colors */
-.status-select.awaiting_payment { color: #f39c12; border-color: #f39c12; }
-.status-select.process { color: #3498db; border-color: #3498db; }
-.status-select.pending { color: #e74c3c; border-color: #e74c3c; }
-.status-select.success { color: #2ecc71; border-color: #2ecc71; }
-.status-select.failed { color: #e74c3c; border-color: #e74c3c; }
+.status-select option {
+  background-color: #1a1a1a;
+  color: #fff;
+  padding: 8px;
+}
+
+/* Status Colors (Text only for elegance) */
+.status-select.awaiting_payment { color: #f39c12; }
+.status-select.process { color: #3498db; }
+.status-select.pending { color: #e74c3c; }
+.status-select.success { color: #2ecc71; }
+.status-select.failed { color: #e74c3c; }
+.status-select.expired { color: #95a5a6; }
 
 .refresh-btn {
   background: rgba(255, 255, 255, 0.1);
