@@ -5,6 +5,9 @@ import ClientLayout from "@/components/ClientLayout";
 export const metadata: Metadata = {
   title: "Gemartopup | Terminal",
   description: "Advanced Top-Up Terminal",
+  icons: {
+    icon: '/logo.png',
+  },
 };
 
 export default function RootLayout({
