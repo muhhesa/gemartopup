@@ -163,6 +163,20 @@ export default function OrderPage() {
       localStorage.setItem("gemartopup_pending_order", JSON.stringify({
         targetId, nickname: orderData.nickname, packageName, paymentMethod, price, fee, total: totalPrice, timestamp: Date.now()
       }));
+
+      // Send Telegram Notification silently
+      fetch('/api/telegram', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invoiceId,
+          targetId,
+          nickname: orderData.nickname,
+          packageName,
+          paymentMethod,
+          total: totalPrice
+        })
+      }).catch(err => console.error("Failed to send telegram notification:", err));
       
       router.push(`/invoice/${invoiceId}`);
     } catch (err) {
