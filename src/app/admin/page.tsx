@@ -84,7 +84,7 @@ export default function AdminDashboard() {
       <div className="admin-header">
         <h1>Dashboard Pesanan</h1>
         <button className="refresh-btn" onClick={fetchOrders} disabled={loading}>
-          {loading ? "Memuat..." : "🔄 Refresh"}
+          {loading ? "Memuat..." : "Refresh"}
         </button>
       </div>
 

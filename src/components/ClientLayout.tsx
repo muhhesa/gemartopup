@@ -81,12 +81,12 @@ function FooterContent() {
             {t("footer.desc")}
           </p>
           <div className="footer-contact">
-            <h4>{t("footer.help")}</h4>
-            <div className="contact-item">
-               <span>✉️</span> gemartopup@gmail.com
+            <h4 style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', textTransform: 'uppercase', letterSpacing: '1px', fontSize: '12px', fontWeight: 600, color: '#fff', borderBottom: '1px solid #333', paddingBottom: '8px', marginBottom: '16px' }}>{t("footer.help")}</h4>
+            <div className="contact-item" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '13px', color: '#ccc', marginBottom: '8px' }}>
+               gemartopup@gmail.com
             </div>
-            <div className="contact-item">
-               <span>📱</span> 08115234943
+            <div className="contact-item" style={{ fontFamily: '"Helvetica Neue", Helvetica, Arial, sans-serif', fontSize: '13px', color: '#ccc' }}>
+               08115234943
             </div>
           </div>
         </div>
