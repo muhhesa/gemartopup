@@ -24,7 +24,7 @@ export async function POST(req: Request) {
 *Metode Bayar:* ${paymentMethod}
 *Total Tagihan:* *Rp ${Number(total).toLocaleString('id-ID')}*
 
-[Lihat Dashboard Admin](https://gemartopup.com/admin)
+[Lihat Dashboard Admin](https://gemartopup.vercel.app/admin)
 `;
 
     const telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage`;
