@@ -7,50 +7,20 @@ import { useParams, useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
 import { supabase } from "@/lib/supabase";
 
-const GAME_DETAILS: Record<string, any> = {
-  ml: { name: "MOBILE LEGENDS", code: "MLBB", hasZone: true, zoneName: "ZONE ID" },
-  ff: { name: "FREE FIRE", code: "FF", hasZone: false },
-  pubg: { name: "PUBG MOBILE", code: "PUBGM", hasZone: false },
-  valo: { name: "VALORANT", code: "VALO", hasZone: false },
-  genshin: { name: "GENSHIN IMPACT", code: "GI", hasZone: true, zoneName: "SERVER" },
-  hsr: { name: "HONKAI: STAR RAIL", code: "HSR", hasZone: true, zoneName: "SERVER" },
-  gplay: { name: "GOOGLE PLAY ID", code: "GPLAY", hasZone: false },
-  garena: { name: "GARENA SHELL", code: "GSHELL", hasZone: false },
-  tsel: { name: "TELKOMSEL PULSA", code: "TSEL", hasZone: false },
-  pln: { name: "TOKEN PLN", code: "PLN", hasZone: false },
-};
+import catalogData from "@/data/catalog.json";
 
-const getNominals = (gameId: string) => {
-  if (gameId === "pln") {
-    return [
-      { id: 1, name: "Token 20.000", price: 21500, badge: null },
-      { id: 2, name: "Token 50.000", price: 51500, badge: "promo" },
-      { id: 3, name: "Token 100.000", price: 101500, badge: "bestseller" },
-    ];
-  }
-  if (gameId === "tsel") {
-    return [
-      { id: 1, name: "Pulsa 10.000", price: 11500, badge: null },
-      { id: 2, name: "Pulsa 50.000", price: 50500, badge: "promo" },
-      { id: 3, name: "Pulsa 100.000", price: 99500, badge: "bestseller" },
-    ];
-  }
-  if (gameId === "gplay") {
-    return [
-      { id: 1, name: "Voucher 50.000", price: 55000, badge: null },
-      { id: 2, name: "Voucher 100.000", price: 110000, badge: "bestseller" },
-    ];
-  }
-  
-  // Default (Games)
-  return [
-    { id: 1, name: "86 Diamonds", price: 15500, badge: null },
-    { id: 2, name: "172 Diamonds", price: 30000, badge: "promo" },
-    { id: 3, name: "257 Diamonds", price: 44500, badge: null },
-    { id: 4, name: "344 Diamonds", price: 58500, badge: "bestseller" },
-    { id: 5, name: "706 Diamonds", price: 117500, badge: null },
-    { id: 6, name: "878 Diamonds", price: 146000, badge: null },
-  ];
+const GAME_DETAILS: Record<string, any> = {};
+catalogData.games.forEach((g: any) => {
+  GAME_DETAILS[g.id] = {
+    name: g.name,
+    code: g.code,
+    hasZone: g.hasZone,
+    zoneName: g.hasZone ? (g.name.toUpperCase().includes("GENSHIN") || g.name.toUpperCase().includes("HONKAI") ? "SERVER" : "ZONE ID") : undefined
+  };
+});
+
+const getNominals = (gameId: string): any[] => {
+  return (catalogData.products as any)[gameId] || [];
 };
 
 const PAYMENTS = [

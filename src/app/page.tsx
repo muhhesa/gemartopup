@@ -6,23 +6,14 @@ import { useLanguage } from "@/context/LanguageContext";
 import ClockWidget from "@/components/ClockWidget";
 import { useState } from "react";
 
-const GAMES = [
-  // GAMES
-  { id: "ml", name: "MOBILE LEGENDS", code: "MLBB", status: "ACTIVE", category: "game", hasZone: true },
-  { id: "ff", name: "FREE FIRE", code: "FF", status: "ACTIVE", category: "game", hasZone: false },
-  { id: "pubg", name: "PUBG MOBILE", code: "PUBGM", status: "ACTIVE", category: "game", hasZone: false },
-  { id: "valo", name: "VALORANT", code: "VALO", status: "MAINTENANCE", category: "game", hasZone: false },
-  { id: "genshin", name: "GENSHIN IMPACT", code: "GI", status: "ACTIVE", category: "game", hasZone: true },
-  { id: "hsr", name: "HONKAI: STAR RAIL", code: "HSR", status: "ACTIVE", category: "game", hasZone: true },
-  
-  // VOUCHER
-  { id: "gplay", name: "GOOGLE PLAY ID", code: "GPLAY", status: "ACTIVE", category: "voucher", hasZone: false },
-  { id: "garena", name: "GARENA SHELL", code: "GSHELL", status: "ACTIVE", category: "voucher", hasZone: false },
-  
-  // PULSA & TOKEN
-  { id: "tsel", name: "TELKOMSEL PULSA", code: "TSEL", status: "ACTIVE", category: "pulsa", hasZone: false },
-  { id: "pln", name: "TOKEN PLN", code: "PLN", status: "ACTIVE", category: "pulsa", hasZone: false },
-];
+import catalogData from "@/data/catalog.json";
+const GAMES = catalogData.games;
+
+const POPULAR_GAME_IDS = ['mlbb', 'ff', 'pubg', 'valo'];
+const TRENDING_GAME_IDS = ['mlbb', 'ff', 'pubg', 'valo', 'point-blank'];
+
+const popularGames = POPULAR_GAME_IDS.map(id => GAMES.find(g => g.id === id)).filter(Boolean) as typeof GAMES;
+const trendingGames = TRENDING_GAME_IDS.map(id => GAMES.find(g => g.id === id)).filter(Boolean) as typeof GAMES;
 
 export default function Home() {
   const { t } = useLanguage();
@@ -54,7 +45,7 @@ export default function Home() {
           <h2>{t("home.popular")}</h2>
         </div>
         <div className="game-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
-          {GAMES.slice(0, 4).map((game) => (
+          {popularGames.map((game) => (
             <Link href={`/order/${game.id}`} key={`pop-${game.id}`} className="game-card" style={{ position: 'relative' }}>
               <div className="popular-badge">HOT</div>
               <div className="game-card-inner">
@@ -125,7 +116,7 @@ export default function Home() {
           <aside className="trending-sidebar">
           <div className="trending-header">TRENDING</div>
           <div className="trending-list">
-            {GAMES.slice(0, 5).map(game => (
+            {trendingGames.map(game => (
               <Link href={`/order/${game.id}`} key={`trend-${game.id}`} className="trending-item">
                 <div className="trending-icon">{game.name.charAt(0)}</div>
                 <div>

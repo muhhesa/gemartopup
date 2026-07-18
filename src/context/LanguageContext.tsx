@@ -85,7 +85,7 @@ const translations: Record<Language, Record<string, string>> = {
     "status.failed": "BATAL (GAGAL)",
     "status.exp": "KADALUARSA",
     
-    "footer.desc": "Reseller top up game, voucher, pulsa, token pln dengan harga merakyat, aman dan terpercaya. 100% LEGAL Dengan Layanan 24/7 Non stop dan transaksi lebih mudah dengan berbagai pilihan pembayaran lengkap.",
+    "footer.desc": "Seller top up game, voucher, pulsa, token pln dengan harga merakyat, aman dan terpercaya. 100% LEGAL Dengan Layanan 24/7 Non stop dan transaksi lebih mudah dengan berbagai pilihan pembayaran lengkap.",
     "footer.help": "Butuh Bantuan",
     "footer.nav": "NAVIGASI",
     "footer.fast": "AKSES CEPAT",
@@ -173,7 +173,7 @@ const translations: Record<Language, Record<string, string>> = {
     "status.failed": "FAILED (CANCELED)",
     "status.exp": "EXPIRED",
     
-    "footer.desc": "Game top-up reseller, vouchers, credit, PLN tokens at affordable prices, safe and trusted. 100% LEGAL with 24/7 non-stop service and easier transactions with various complete payment options.",
+    "footer.desc": "Game top-up seller, vouchers, credit, PLN tokens at affordable prices, safe and trusted. 100% LEGAL with 24/7 non-stop service and easier transactions with various complete payment options.",
     "footer.help": "Need Help",
     "footer.nav": "NAVIGATION",
     "footer.fast": "QUICK ACCESS",
