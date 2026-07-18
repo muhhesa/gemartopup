@@ -54,41 +54,44 @@ for sheet in xl.sheet_names:
         if 'LAYANAN' in df.columns and 'HARGA SILVER' in df.columns:
             has_pid = 'PID' in df.columns
             
-            # Find duplicate names to selectively append suffixes
-            name_counts = df['LAYANAN'].astype(str).value_counts().to_dict()
-            
+            unique_products = {}
             for idx, row in df.iterrows():
                 try:
-                    original_name = str(row['LAYANAN'])
-                    product_name = original_name
+                    product_name = str(row['LAYANAN'])
                     
-                    # Only append suffix if the name appears more than once
-                    if has_pid and not pd.isna(row['PID']) and name_counts.get(original_name, 0) > 1:
-                        pid_str = str(row['PID'])
-                        if '-' in pid_str:
-                            suffix = pid_str.split('-')[-1]
-                            product_name += f" ({suffix})"
-                            
                     if pd.isna(row['HARGA SILVER']):
                         continue
+                    
+                    # Filter out anomalous 5 Diamond
+                    if product_name.strip() == '5 Diamond' and game_id not in ['mlbb', 'ff', 'free-fire']:
+                        continue
+                        
                     price_str = str(row['HARGA SILVER']).replace('Rp. ', '').replace('.', '').strip()
                     if not price_str or price_str == 'nan':
                         continue
                     price = int(price_str)
                     
-                    # Badge logic
-                    badge = None
-                    if 'pass' in product_name.lower() or 'weekly' in product_name.lower():
-                        badge = 'promo'
-                    
-                    sheet_products.append({
-                        "id": int(idx + 1),
-                        "name": product_name,
-                        "price": price,
-                        "badge": badge
-                    })
+                    if product_name not in unique_products:
+                        unique_products[product_name] = price
+                    else:
+                        if price < unique_products[product_name]:
+                            unique_products[product_name] = price
                 except Exception as e:
                     pass
+            
+            p_id = 1
+            for p_name, p_price in unique_products.items():
+                badge = None
+                if 'pass' in p_name.lower() or 'weekly' in p_name.lower():
+                    badge = 'promo'
+                
+                sheet_products.append({
+                    "id": p_id,
+                    "name": p_name,
+                    "price": p_price,
+                    "badge": badge
+                })
+                p_id += 1
         
         products[game_id] = sheet_products
 
