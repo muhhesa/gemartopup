@@ -143,7 +143,9 @@ export default function InvoicePage() {
     if (status === "AWAITING_PAYMENT") {
       message = `Halo Admin Gemartopup,%0A%0ASaya baru saja melakukan pemesanan dengan ID Invoice *${invoiceId}* dan sudah melakukan pembayaran. Mohon pesanan saya segera diproses ya!%0A%0A*Target ID:* ${invoiceData?.targetId}%0A*Item:* ${invoiceData?.packageName}%0A*Total:* IDR ${invoiceData?.total.toLocaleString('id-ID')}%0A%0ABerikut saya lampirkan bukti transfernya:`;
     } else if (status === "SUCCESS") {
-      message = `Halo Admin Gemartopup,%0A%0APesanan saya dengan ID Invoice *${invoiceId}* sudah masuk ke akun saya. Terima kasih banyak atas pelayanannya yang cepat!`;
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+      const reviewLink = `${baseUrl}/review/${invoiceId}`;
+      message = `Halo Admin Gemartopup,%0A%0APesanan saya dengan ID Invoice *${invoiceId}* sudah masuk ke akun saya. Terima kasih banyak atas pelayanannya yang cepat!%0A%0A(Saya juga sudah/akan mengisi ulasan di: ${reviewLink})`;
     } else {
       message = `Halo Admin Gemartopup,%0A%0ASaya ingin konfirmasi pesanan saya dengan ID Invoice *${invoiceId}* yang saat ini berstatus *${getStatusLabel(status)}*. Mohon segera diproses ya!%0A%0A*Target ID:* ${invoiceData?.targetId}%0A*Item:* ${invoiceData?.packageName}%0A%0ATerima kasih!`;
     }
