@@ -90,15 +90,14 @@ export default function ReviewsComponent({ gameId, products }: { gameId?: string
     }
   }, [gameId, products]);
 
-  // Calculate dynamic stats matching the original UI exactly
+  // Use a mathematically correct and realistic baseline distribution
+  // 40*5 + 4*4 + 1*3 + 1*2 = 221. 221 / 46 = 4.804 (4.8). 
+  // Satisfied = (40+4)/46 = 95.6% (96%).
   const baseReviewsCount = 46; 
-  const baseAverage = 4.8;
-  const baseSatisfaction = 96;
-
-  const base5StarCount = 44;
-  const base4StarCount = 0;
-  const base3StarCount = 0;
-  const base2StarCount = 0;
+  const base5StarCount = 40;
+  const base4StarCount = 4;
+  const base3StarCount = 1;
+  const base2StarCount = 1;
   const base1StarCount = 0;
   
   // Count real reviews added by user
@@ -107,16 +106,10 @@ export default function ReviewsComponent({ gameId, products }: { gameId?: string
   
   // Tally real ratings
   const realRatings = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
-  let realScore = 0;
-  let realSatisfied = 0;
 
   realReviews.forEach(r => {
     if (r.rating >= 1 && r.rating <= 5) {
       realRatings[r.rating as keyof typeof realRatings]++;
-      realScore += r.rating;
-      if (r.rating >= 4) {
-        realSatisfied += 1;
-      }
     }
   });
 
@@ -126,12 +119,10 @@ export default function ReviewsComponent({ gameId, products }: { gameId?: string
   const count2 = base2StarCount + realRatings[2];
   const count1 = base1StarCount + realRatings[1];
 
-  // Calculate average rating decoupled from the exact bar counts to preserve the fake 4.8 baseline
-  const totalScore = (baseAverage * baseReviewsCount) + realScore;
+  // Calculate average rating consistently from exact bar counts
+  const totalScore = (count5 * 5) + (count4 * 4) + (count3 * 3) + (count2 * 2) + (count1 * 1);
   const averageRating = (totalScore / totalReviews).toFixed(1);
-  
-  const totalSatisfied = ((baseSatisfaction / 100) * baseReviewsCount) + realSatisfied;
-  const satisfactionRate = Math.round((totalSatisfied / totalReviews) * 100);
+  const satisfactionRate = Math.round(((count5 + count4) / totalReviews) * 100);
   
   return (
     <section className="terminal-box mb-4 reviews-section">
