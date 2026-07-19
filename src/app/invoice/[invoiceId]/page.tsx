@@ -26,6 +26,11 @@ export default function InvoicePage() {
   const ADMIN_WHATSAPP = "628115234943";
 
   useEffect(() => {
+    // Check if this invoice has already been reviewed
+    if (localStorage.getItem(`gemartopup_reviewed_${invoiceId}`)) {
+      setIsReviewSubmitted(true);
+    }
+
     // Ubah judul dokumen untuk nama file PDF yang rapi saat diunduh
     document.title = `INVOICE_${invoiceId}_GEMARTOPUP`;
 
@@ -406,13 +411,14 @@ export default function InvoicePage() {
               className="btn-primary" 
               style={{ width: '100%' }}
               onClick={() => {
-                const gameId = invoiceData?.gameId || "general"; // Fallback to 'general' if gameId is missing in old data
+                const gameIdFromInvoice = invoiceId.split('-')[1]?.toLowerCase();
+                const gameId = invoiceData?.gameId || gameIdFromInvoice || "general";
                 
                 const reviews = JSON.parse(localStorage.getItem(`gemartopup_reviews_${gameId}`) || "[]");
                 const newReview = {
                   id: `rev-${Date.now()}`,
                   name: "628" + Math.floor(1000000 + Math.random() * 9000000) + "***",
-                  item: invoiceData.packageName,
+                  item: invoiceData?.packageName || "Layanan Topup",
                   date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
                   rating: reviewRating,
                   comment: reviewComment || "Sangat puas dengan layanannya"
@@ -420,6 +426,7 @@ export default function InvoicePage() {
                 
                 reviews.unshift(newReview);
                 localStorage.setItem(`gemartopup_reviews_${gameId}`, JSON.stringify(reviews));
+                localStorage.setItem(`gemartopup_reviewed_${invoiceId}`, "true");
                 setIsReviewSubmitted(true);
                 setIsReviewModalOpen(false);
               }}

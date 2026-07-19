@@ -18,6 +18,10 @@ export default function ReviewPage() {
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
+    if (localStorage.getItem(`gemartopup_reviewed_${invoiceId}`)) {
+      setIsReviewSubmitted(true);
+    }
+
     // Try to get invoice data from localStorage
     const savedData = localStorage.getItem("gemartopup_pending_order");
     if (savedData) {
@@ -33,13 +37,14 @@ export default function ReviewPage() {
   }, []);
 
   const handleSubmit = () => {
-    const gameId = invoiceData?.gameId || "general";
+    const gameIdFromInvoice = invoiceId.split('-')[1]?.toLowerCase();
+    const gameId = invoiceData?.gameId || gameIdFromInvoice || "general";
 
     const reviews = JSON.parse(localStorage.getItem(`gemartopup_reviews_${gameId}`) || "[]");
     const newReview = {
       id: `rev-${Date.now()}`,
       name: "628" + Math.floor(1000000 + Math.random() * 9000000) + "***",
-      item: invoiceData.packageName,
+      item: invoiceData?.packageName || "Layanan Topup",
       date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
       rating: reviewRating,
       comment: reviewComment || "Sangat puas dengan layanannya"
@@ -47,6 +52,7 @@ export default function ReviewPage() {
 
     reviews.unshift(newReview);
     localStorage.setItem(`gemartopup_reviews_${gameId}`, JSON.stringify(reviews));
+    localStorage.setItem(`gemartopup_reviewed_${invoiceId}`, "true");
     setIsReviewSubmitted(true);
   };
 
