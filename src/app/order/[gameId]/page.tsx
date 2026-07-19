@@ -46,6 +46,8 @@ export default function OrderPage() {
   const [isChecking, setIsChecking] = useState(false);
   const [checkError, setCheckError] = useState<string | null>(null);
 
+  const [isGuideOpen, setIsGuideOpen] = useState(false);
+
   const nominalsList = getNominals(gameId as string);
   const selectedNominalData = nominalsList.find(n => n.id === selectedNominal);
   const selectedPaymentData = PAYMENTS.find(p => p.id === selectedPayment);
@@ -179,7 +181,16 @@ export default function OrderPage() {
 
         <div className="order-main">
           <section className="terminal-box mb-4">
-            <h2 className="step-title">{t("order.step1")}</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', borderBottom: '1px dashed rgba(255, 145, 0, 0.2)', paddingBottom: '8px' }}>
+              <h2 className="step-title" style={{ marginBottom: 0, borderBottom: 'none', paddingBottom: 0 }}>{t("order.step1")}</h2>
+              <button 
+                className="btn-secondary" 
+                style={{ fontSize: '12px', padding: '4px 10px', borderRadius: '4px' }}
+                onClick={() => setIsGuideOpen(true)}
+              >
+                ? Petunjuk
+              </button>
+            </div>
             <div className="input-group">
               {config.fields.map((field) => (
                 <div className="form-control" key={field.id}>
@@ -347,11 +358,10 @@ export default function OrderPage() {
               </div>
               <div className="summary-row">
                 <span>{t("order.target")}:</span>
-                <span>{isFieldsComplete() ? getTargetIdString() : "-"}</span>
-              </div>
-              <div className="summary-row">
-                <span>Nickname:</span>
-                <span>{config.needsNicknameCheck ? (nickname || "-") : "Tidak Perlu"}</span>
+                <span style={{ textAlign: 'right' }}>
+                  {isFieldsComplete() ? getTargetIdString() : "-"}
+                  {nickname ? <><br/><span style={{ fontSize: '11px', color: 'var(--primary-color)' }}>({nickname})</span></> : ""}
+                </span>
               </div>
               <div className="summary-row">
                 <span>Payment:</span>
@@ -384,6 +394,45 @@ export default function OrderPage() {
           </div>
         </aside>
       </div>
+
+      {isGuideOpen && (
+        <div className="modal-overlay" onClick={() => setIsGuideOpen(false)}>
+          <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', backgroundColor: '#1a1a1a', border: '1px solid #333' }}>
+            <div className="modal-header" style={{ borderBottom: '1px solid #333', paddingBottom: '12px', marginBottom: '16px' }}>
+              <h2 style={{ fontSize: '18px', margin: 0, color: '#fff' }}>Petunjuk Pengisian</h2>
+              <button className="close-btn" onClick={() => setIsGuideOpen(false)} style={{ color: '#888' }}>&times;</button>
+            </div>
+            
+            <div style={{ color: '#ccc', fontSize: '14px', lineHeight: '1.5' }}>
+              <p style={{ marginBottom: '16px' }}>Ikuti langkah berikut dengan benar untuk menemukan data akun kamu.</p>
+              
+              {/* Dynamic guide based on fields */}
+              <div style={{ padding: '16px', backgroundColor: '#222', borderRadius: '4px', border: '1px solid #333', marginBottom: '20px' }}>
+                <div style={{ fontWeight: 'bold', color: 'var(--primary-color)', marginBottom: '8px' }}>Format:</div>
+                <div>
+                  {config.fields.map((f) => f.labelId).join(gameId === 'valo' ? '#' : ' ')}
+                </div>
+                
+                <div style={{ fontWeight: 'bold', color: 'var(--primary-color)', marginTop: '16px', marginBottom: '8px' }}>Contoh:</div>
+                <div>
+                  {gameId === 'valo' ? 'kuropedia#123' : 
+                   gameId === 'mlbb' ? '12345678 (1234)' :
+                   gameId.includes('honkai') || gameId === 'genshin' ? '800123456 (Asia)' :
+                   'ourastore123'}
+                </div>
+              </div>
+            </div>
+
+            <button 
+              className="btn-primary" 
+              style={{ width: '100%' }}
+              onClick={() => setIsGuideOpen(false)}
+            >
+              Mengerti & Lanjutkan
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

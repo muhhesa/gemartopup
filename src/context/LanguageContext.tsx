@@ -30,7 +30,7 @@ const translations: Record<Language, Record<string, string>> = {
     "cat.pulsa": "PULSA & TOKEN",
     
     "order.return": "< KEMBALI KE AWAL",
-    "order.target": "LAYANAN",
+    "order.target": "ID PENGGUNA",
     "order.sysready": "SISTEM AKTIF",
     "order.step1": "01. MASUKKAN DATA PENGGUNA",
     "order.userid": "ID PENGGUNA",

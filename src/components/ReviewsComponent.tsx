@@ -65,7 +65,7 @@ const generateMockReviews = (products: any[], gameId?: string): Review[] => {
     }
 
     reviews.push({
-      id: `rev${i}`,
+      id: `mock-${i}`,
       name: mockName,
       item: product.name,
       date: dates[i % dates.length],
@@ -101,7 +101,7 @@ export default function ReviewsComponent({ gameId, products }: { gameId?: string
   const base1StarCount = 0;
   
   // Count real reviews added by user
-  const realReviews = reviews.filter(r => !r.id.startsWith('rev')); // Mock reviews have id rev0, rev1, etc.
+  const realReviews = reviews.filter(r => !r.id.startsWith('mock-')); // Mock reviews have id mock-0, mock-1, etc.
   const totalReviews = baseReviewsCount + realReviews.length;
   
   // Tally real ratings
@@ -121,8 +121,8 @@ export default function ReviewsComponent({ gameId, products }: { gameId?: string
 
   // Calculate average rating consistently from exact bar counts
   const totalScore = (count5 * 5) + (count4 * 4) + (count3 * 3) + (count2 * 2) + (count1 * 1);
-  const averageRating = (totalScore / totalReviews).toFixed(1);
-  const satisfactionRate = Math.round(((count5 + count4) / totalReviews) * 100);
+  const averageRating = totalReviews > 0 ? (totalScore / totalReviews).toFixed(1) : "0.0";
+  const satisfactionRate = totalReviews > 0 ? Math.round(((count5 + count4) / totalReviews) * 100) : 0;
   
   return (
     <section className="terminal-box mb-4 reviews-section">
@@ -146,10 +146,7 @@ export default function ReviewsComponent({ gameId, products }: { gameId?: string
       <div className="rating-bars">
         {[
           { stars: 5, count: count5 },
-          { stars: 4, count: count4 },
-          { stars: 3, count: count3 },
-          { stars: 2, count: count2 },
-          { stars: 1, count: count1 }
+          { stars: 4, count: count4 }
         ].map((bar) => {
           const widthPercent = totalReviews > 0 ? (bar.count / totalReviews) * 100 : 0;
           return (

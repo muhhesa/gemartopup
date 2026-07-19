@@ -59,14 +59,12 @@ export async function POST(req: Request) {
     const invoiceId = `INV-${game.code}-${Math.floor(Math.random() * 1000000)}`;
 
     // 6. Buat Data Pesanan (Status dipaksa AWAITING_PAYMENT)
-    const orderData = {
+    const dbInsertData = {
       invoice_id: invoiceId,
-      game_id: gameId,
       target_id: targetId,
       nickname: nickname || null,
       package_name: packageName,
       payment_method: paymentMethod,
-      whatsapp: whatsapp,
       price: price,
       fee: fee,
       total: totalPrice,
@@ -74,7 +72,7 @@ export async function POST(req: Request) {
     };
 
     // 7. Simpan ke Supabase menggunakan Admin Key (Kebal RLS)
-    const { error: insertError } = await supabaseAdmin.from('orders').insert([orderData]);
+    const { error: insertError } = await supabaseAdmin.from('orders').insert([dbInsertData]);
 
     if (insertError) {
       console.error("Supabase Insert Error:", insertError);
@@ -103,6 +101,12 @@ export async function POST(req: Request) {
     }
 
     // 9. Kembalikan respons sukses ke Client
+    const orderData = {
+      ...dbInsertData,
+      game_id: gameId,
+      whatsapp: whatsapp
+    };
+
     return NextResponse.json({ 
       success: true, 
       invoiceId, 
