@@ -71,12 +71,39 @@ export default function ReviewsComponent({ gameId, products }: { gameId?: string
     
     if (gameId) {
       const savedReviews = JSON.parse(localStorage.getItem(`gemartopup_reviews_${gameId}`) || "[]");
-      // combine real reviews with mock reviews
       setReviews([...savedReviews, ...mockReviews]);
     } else {
       setReviews(mockReviews);
     }
   }, [gameId, products]);
+
+  // Calculate dynamic stats
+  const baseReviewsCount = 46; // The original hardcoded number
+  const base5StarCount = 44;
+  const base4StarCount = 2; // Let's make it add up to 46
+  
+  // Count real reviews added by user
+  const realReviews = reviews.filter(r => !r.id.startsWith('rev')); // Mock reviews have id rev0, rev1, etc.
+  const totalReviews = baseReviewsCount + realReviews.length;
+  
+  // Tally real ratings
+  const realRatings = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+  realReviews.forEach(r => {
+    if (r.rating >= 1 && r.rating <= 5) {
+      realRatings[r.rating as keyof typeof realRatings]++;
+    }
+  });
+
+  const count5 = base5StarCount + realRatings[5];
+  const count4 = base4StarCount + realRatings[4];
+  const count3 = realRatings[3];
+  const count2 = realRatings[2];
+  const count1 = realRatings[1];
+
+  // Calculate average rating
+  const totalScore = (count5 * 5) + (count4 * 4) + (count3 * 3) + (count2 * 2) + (count1 * 1);
+  const averageRating = (totalScore / totalReviews).toFixed(1);
+  const satisfactionRate = Math.round(((count5 + count4) / totalReviews) * 100);
   
   return (
     <section className="terminal-box mb-4 reviews-section">
@@ -87,32 +114,35 @@ export default function ReviewsComponent({ gameId, products }: { gameId?: string
       <div className="reviews-summary">
         <div className="rating-score">
           <span className="star-icon">⭐</span>
-          <span className="score-big">4.8</span>
+          <span className="score-big">{averageRating}</span>
           <span className="score-small">/ 5.0</span>
         </div>
         <div className="rating-text">
-          <strong>96% pembeli merasa puas dengan produk ini.</strong>
+          <strong>{satisfactionRate}% pembeli merasa puas dengan produk ini.</strong>
           <br />
-          Dari 46 Ulasan.
+          Dari {totalReviews} Ulasan.
         </div>
       </div>
 
       <div className="rating-bars">
         {[
-          { stars: 5, count: 44, width: "95%" },
-          { stars: 4, count: 0, width: "0%" },
-          { stars: 3, count: 0, width: "0%" },
-          { stars: 2, count: 0, width: "0%" },
-          { stars: 1, count: 0, width: "0%" }
-        ].map((bar) => (
-          <div className="rating-bar-row" key={bar.stars}>
-            <span className="bar-label">{bar.stars} ⭐</span>
-            <div className="bar-track">
-              <div className="bar-fill" style={{ width: bar.width }}></div>
+          { stars: 5, count: count5 },
+          { stars: 4, count: count4 },
+          { stars: 3, count: count3 },
+          { stars: 2, count: count2 },
+          { stars: 1, count: count1 }
+        ].map((bar) => {
+          const widthPercent = totalReviews > 0 ? (bar.count / totalReviews) * 100 : 0;
+          return (
+            <div className="rating-bar-row" key={bar.stars}>
+              <span className="bar-label">{bar.stars} ⭐</span>
+              <div className="bar-track">
+                <div className="bar-fill" style={{ width: `${widthPercent}%` }}></div>
+              </div>
+              <span className="bar-count">{bar.count}</span>
             </div>
-            <span className="bar-count">{bar.count}</span>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="reviews-prompt">
