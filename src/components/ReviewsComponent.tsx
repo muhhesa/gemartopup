@@ -12,21 +12,48 @@ interface Review {
   comment: string;
 }
 
-const generateMockReviews = (products: any[]): Review[] => {
+const generateMockReviews = (products: any[], gameId?: string): Review[] => {
   if (!products || products.length === 0) return [];
   
   // Use a predictable seed based on products to ensure same products = same reviews
   const comments = ["Sangat puas", "Harga murah", "Proses cepat", "Mantap", "Gampang banget", "Auto sultan", "Top up langganan di sini"];
   const dates = ["18 Jul 2026", "13 Jul 2026", "11 Jul 2026", "01 Jul 2026", "29 Jun 2026", "15 Jun 2026", "02 Jun 2026"];
-  const names = ["6281****72795", "Jo****nid", "6285****41314", "Ah****oy", "De****s", "6282****99999", "Ri****ki"];
+  
+  const pulsaIds = ['telkomsel', 'axis', 'xl', 'indosat', 'tri', 'smartfren', 'pulsa'];
+  const isPulsa = pulsaIds.includes(gameId?.toLowerCase() || "");
   
   const reviews: Review[] = [];
   // generate 5 reviews
   for (let i = 0; i < 5; i++) {
     const product = products[i % products.length];
+    
+    // Generate smart mock name
+    let mockName = "";
+    if (isPulsa) {
+      let prefix = "081";
+      if (gameId === 'telkomsel') prefix = "0812";
+      else if (gameId === 'axis') prefix = "0838";
+      else if (gameId === 'xl') prefix = "0878";
+      else if (gameId === 'indosat') prefix = "0857";
+      else if (gameId === 'tri') prefix = "0896";
+      else if (gameId === 'smartfren') prefix = "0881";
+      const suffix = Math.floor(1000 + (i * 999) % 9000);
+      mockName = `${prefix}****${suffix}`;
+    } else {
+      // For games
+      if (i % 2 === 0) {
+        // ID format
+        mockName = `${Math.floor(100 + (i * 123) % 900)}****${Math.floor(10 + (i * 12) % 90)}`;
+      } else {
+        // Nickname format
+        const nicks = ["Jo", "Al", "Ri", "De", "Ze", "Ki"];
+        mockName = `${nicks[i % nicks.length]}****${nicks[(i+1) % nicks.length].toLowerCase()}`;
+      }
+    }
+
     reviews.push({
       id: `rev${i}`,
-      name: names[i % names.length],
+      name: mockName,
       item: product.name,
       date: dates[i % dates.length],
       rating: 5,
@@ -40,7 +67,7 @@ export default function ReviewsComponent({ gameId, products }: { gameId?: string
   const [reviews, setReviews] = useState<Review[]>([]);
 
   useEffect(() => {
-    const mockReviews = products && products.length > 0 ? generateMockReviews(products) : [];
+    const mockReviews = products && products.length > 0 ? generateMockReviews(products, gameId) : [];
     
     if (gameId) {
       const savedReviews = JSON.parse(localStorage.getItem(`gemartopup_reviews_${gameId}`) || "[]");

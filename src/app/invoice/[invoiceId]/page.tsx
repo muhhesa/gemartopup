@@ -415,9 +415,14 @@ export default function InvoicePage() {
                 const gameId = invoiceData?.gameId || gameIdFromInvoice || "general";
                 
                 const reviews = JSON.parse(localStorage.getItem(`gemartopup_reviews_${gameId}`) || "[]");
+                const targetName = invoiceData?.nickname || invoiceData?.targetId || "User";
+                const maskedName = targetName.length > 4 
+                  ? targetName.substring(0, 4) + "****" + targetName.substring(targetName.length - 2)
+                  : targetName + "****";
+
                 const newReview = {
                   id: `rev-${Date.now()}`,
-                  name: "628" + Math.floor(1000000 + Math.random() * 9000000) + "***",
+                  name: maskedName,
                   item: invoiceData?.packageName || "Layanan Topup",
                   date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
                   rating: reviewRating,
