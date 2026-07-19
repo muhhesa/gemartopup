@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { LanguageProvider, useLanguage } from "@/context/LanguageContext";
-import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import catalogData from "@/data/catalog.json";
 import RecentPurchasePopup from "./RecentPurchasePopup";
 
 function Sidebar({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) {
@@ -35,6 +36,10 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) 
 
 function HeaderContent({ toggleSidebar }: { toggleSidebar: () => void }) {
   const { lang, setLang, t } = useLanguage();
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -43,9 +48,26 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar: () => void }) {
         document.getElementById('header-search')?.focus();
       }
     };
+    
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowResults(false);
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
+
+  const searchResults = catalogData.games.filter(g => 
+    g.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    g.code.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    g.id.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
     <header className="main-header">
@@ -58,13 +80,59 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar: () => void }) {
           </Link>
         </div>
         
-        <div className="header-search-container">
+        <div className="header-search-container" ref={searchRef} style={{ position: 'relative' }}>
           <svg className="header-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="11" cy="11" r="8"></circle>
             <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
           </svg>
-          <input type="text" id="header-search" className="header-search-input" placeholder="Cari game favoritmu..." autoComplete="off" />
+          <input 
+            type="text" 
+            id="header-search" 
+            className="header-search-input" 
+            placeholder="Cari game favoritmu..." 
+            autoComplete="off"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setShowResults(true);
+            }}
+            onFocus={() => setShowResults(true)}
+          />
           <div className="header-search-shortcut">CTRL K</div>
+          
+          {showResults && searchQuery.length > 0 && (
+            <div className="search-dropdown" style={{
+              position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '12px',
+              backgroundColor: '#111', border: '1px solid #333', borderRadius: '12px',
+              padding: '8px', zIndex: 1000, maxHeight: '400px', overflowY: 'auto',
+              boxShadow: '0 10px 25px rgba(0,0,0,0.8)'
+            }}>
+              {searchResults.length > 0 ? (
+                searchResults.map(game => (
+                  <div key={game.id} 
+                       style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', borderRadius: '8px', transition: 'background-color 0.2s' }}
+                       onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#222'}
+                       onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
+                       onClick={() => {
+                         setShowResults(false);
+                         setSearchQuery("");
+                         router.push(`/order/${game.id}`);
+                       }}>
+                    <img src={`/img/${game.id}.jpg`} alt={game.name} style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover' }} 
+                         onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=GAME' }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                      <span style={{ fontWeight: 600, fontSize: '14px', color: '#fff', lineHeight: '1.2' }}>{game.name}</span>
+                      <span style={{ fontSize: '12px', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{game.category}</span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div style={{ padding: '24px', textAlign: 'center', color: 'var(--text-dim)', fontSize: '14px' }}>
+                  Tidak ada layanan dengan kata kunci tersebut.
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <nav className="nav-links">
