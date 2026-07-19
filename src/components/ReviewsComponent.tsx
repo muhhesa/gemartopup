@@ -59,10 +59,7 @@ export default function ReviewsComponent() {
   return (
     <section className="terminal-box mb-4 reviews-section">
       <div className="reviews-header">
-        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor">
-          <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
-        </svg>
-        <h2 className="step-title" style={{ margin: 0 }}>Rating dan Ulasan</h2>
+        <h2 style={{ margin: 0, fontSize: '16px', color: 'var(--primary-color)' }}>RATING DAN ULASAN</h2>
       </div>
 
       <div className="reviews-summary">

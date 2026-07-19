@@ -270,7 +270,7 @@ export default function OrderPage() {
             </div>
           </section>
 
-          <section className="terminal-box">
+          <section className="terminal-box mb-4">
             <h2 className="step-title">{t("order.step3")}</h2>
             <div className="payment-list">
               {PAYMENTS.map((pay) => (
@@ -287,22 +287,7 @@ export default function OrderPage() {
           </section>
 
           <section className="terminal-box mb-4">
-            <h2 className="step-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <span style={{ 
-                display: 'inline-flex', 
-                alignItems: 'center', 
-                justifyContent: 'center', 
-                width: '24px', 
-                height: '24px', 
-                background: 'var(--primary-color)', 
-                color: '#000', 
-                borderRadius: '4px',
-                fontSize: '14px',
-                fontWeight: 'bold',
-                fontStyle: 'italic'
-              }}>6</span>
-              Detail Kontak
-            </h2>
+            <h2 className="step-title">04. DETAIL KONTAK</h2>
             <div className="form-control" style={{ marginTop: '16px' }}>
               <label>No. WhatsApp <span style={{ color: 'var(--danger)' }}>*</span></label>
               <div style={{ display: 'flex' }}>
@@ -316,7 +301,7 @@ export default function OrderPage() {
                   border: '1px solid var(--border-color)',
                   borderRight: 'none',
                   fontSize: '16px'
-                }}>🇮🇩</div>
+                }}>ID</div>
                 <input 
                   type="number" 
                   className="input-field" 
@@ -354,7 +339,7 @@ export default function OrderPage() {
           <div className="terminal-box sticky-sidebar">
             <h2 className="step-title">{t("order.summary")}</h2>
             
-            <div className="summary-details">
+            <div className="summary-details" style={{ maxHeight: '400px', overflowY: 'auto', paddingRight: '8px' }}>
               <div className="summary-row">
                 <span>{t("order.item")}:</span>
                 <span>{selectedNominalData ? selectedNominalData.name : "-"}</span>
