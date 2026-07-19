@@ -5,23 +5,8 @@ import "../home.css";
 import { useLanguage } from "@/context/LanguageContext";
 import { useState } from "react";
 
-const GAMES = [
-  // GAMES
-  { id: "ml", name: "MOBILE LEGENDS", code: "MLBB", status: "ACTIVE", category: "game", hasZone: true },
-  { id: "ff", name: "FREE FIRE", code: "FF", status: "ACTIVE", category: "game", hasZone: false },
-  { id: "pubg", name: "PUBG MOBILE", code: "PUBGM", status: "ACTIVE", category: "game", hasZone: false },
-  { id: "valo", name: "VALORANT", code: "VALO", status: "MAINTENANCE", category: "game", hasZone: false },
-  { id: "genshin", name: "GENSHIN IMPACT", code: "GI", status: "ACTIVE", category: "game", hasZone: true },
-  { id: "hsr", name: "HONKAI: STAR RAIL", code: "HSR", status: "ACTIVE", category: "game", hasZone: true },
-  
-  // VOUCHER
-  { id: "gplay", name: "GOOGLE PLAY ID", code: "GPLAY", status: "ACTIVE", category: "voucher", hasZone: false },
-  { id: "garena", name: "GARENA SHELL", code: "GSHELL", status: "ACTIVE", category: "voucher", hasZone: false },
-  
-  // PULSA & TOKEN
-  { id: "tsel", name: "TELKOMSEL PULSA", code: "TSEL", status: "ACTIVE", category: "pulsa", hasZone: false },
-  { id: "pln", name: "TOKEN PLN", code: "PLN", status: "ACTIVE", category: "pulsa", hasZone: false },
-];
+import catalogData from "@/data/catalog.json";
+const GAMES = catalogData.games;
 
 export default function GamesPage() {
   const { t } = useLanguage();
