@@ -95,11 +95,13 @@
 }
 
 .game-code {
-  font-size: 28px;
+  font-size: 20px;
   font-weight: 800;
   color: var(--text-main);
   margin-bottom: 8px;
-  letter-spacing: 2px;
+  letter-spacing: 1px;
+  word-break: break-word;
+  line-height: 1.2;
 }
 
 .game-card:hover .game-code {

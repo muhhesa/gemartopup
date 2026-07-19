@@ -189,7 +189,9 @@
 }
 
 .sticky-sidebar {
-  /* removed sticky to allow natural scrolling */
+  position: sticky;
+  top: 100px;
+  align-self: start;
 }
 
 .summary-details {
