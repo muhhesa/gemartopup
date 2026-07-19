@@ -12,6 +12,7 @@ export interface FieldConfig {
 export interface GameConfig {
   fields: FieldConfig[];
   needsNicknameCheck: boolean;
+  guideDesc?: string;
 }
 
 const SERVER_OPTIONS = [
@@ -28,14 +29,16 @@ export const GAME_CONFIGS: Record<string, GameConfig> = {
       { id: "userId", labelId: "User ID", type: "number", required: true },
       { id: "zoneId", labelId: "Zone ID", type: "number", required: true }
     ],
-    needsNicknameCheck: true
+    needsNicknameCheck: true,
+    guideDesc: "Untuk mengetahui User ID Anda, silakan klik menu profile dibagian kiri atas pada menu utama game. User ID akan terlihat dibagian bawah Nama Karakter Game Anda. Silakan masukkan User ID Anda untuk menyelesaikan transaksi. Contoh: 12345678(1234)."
   },
   "aov": {
     fields: [
       { id: "userId", labelId: "User ID", type: "number", required: true },
       { id: "zoneId", labelId: "Zone ID / Server", type: "number", required: true }
     ],
-    needsNicknameCheck: true
+    needsNicknameCheck: true,
+    guideDesc: "Untuk menemukan User ID Anda, buka menu profil di dalam game. Masukkan User ID tersebut di sini."
   },
   "undawn": {
     fields: [
@@ -48,19 +51,22 @@ export const GAME_CONFIGS: Record<string, GameConfig> = {
     fields: [
       { id: "userId", labelId: "User ID", type: "number", required: true }
     ],
-    needsNicknameCheck: true
+    needsNicknameCheck: true,
+    guideDesc: "Untuk menemukan ID Anda, klik pada ikon karakter. User ID tercantum di bawah nama karakter Anda. Contoh: 5363266446."
   },
   "pubg": {
     fields: [
       { id: "userId", labelId: "User ID", type: "number", required: true }
     ],
-    needsNicknameCheck: true
+    needsNicknameCheck: true,
+    guideDesc: "Buka game dan masuk ke menu profil. ID Anda berada di bawah nama karakter. Contoh: 5123456789."
   },
   "call-of-duty-mobile": {
     fields: [
       { id: "userId", labelId: "User ID", type: "number", required: true }
     ],
-    needsNicknameCheck: true
+    needsNicknameCheck: true,
+    guideDesc: "Buka menu profil di kiri atas. User ID Anda adalah deretan angka panjang di bawah nama karakter."
   },
   "hago": {
     fields: [
@@ -73,7 +79,8 @@ export const GAME_CONFIGS: Record<string, GameConfig> = {
       { id: "userId", labelId: "Riot ID", type: "text", placeholder: "Name", required: true },
       { id: "zoneId", labelId: "Tagline", type: "text", placeholder: "#Tag", required: true }
     ],
-    needsNicknameCheck: true
+    needsNicknameCheck: true,
+    guideDesc: "Untuk menemukan Riot ID Anda, buka halaman profil akun dan salin Riot ID+Tag menggunakan tombol yang tersedia disamping Riot ID. Contoh: kuropedia#123"
   },
   "point-blank": {
     fields: [
@@ -86,14 +93,16 @@ export const GAME_CONFIGS: Record<string, GameConfig> = {
       { id: "userId", labelId: "UID", type: "number", required: true },
       { id: "zoneId", labelId: "Server", type: "dropdown", options: SERVER_OPTIONS, required: true }
     ],
-    needsNicknameCheck: true
+    needsNicknameCheck: true,
+    guideDesc: "Masuk ke dalam game. Buka menu handphone. UID Anda tercetak di atas nama karakter."
   },
   "genshin": {
     fields: [
       { id: "userId", labelId: "UID", type: "number", required: true },
       { id: "zoneId", labelId: "Server", type: "dropdown", options: SERVER_OPTIONS, required: true }
     ],
-    needsNicknameCheck: true
+    needsNicknameCheck: true,
+    guideDesc: "Buka menu Paimon. UID Anda berada di bawah avatar karakter Anda."
   }
 };
 

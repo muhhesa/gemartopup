@@ -419,21 +419,26 @@ export default function OrderPage() {
             </div>
             
             <div style={{ color: '#ccc', fontSize: '14px', lineHeight: '1.5' }}>
-              <p style={{ marginBottom: '16px' }}>Ikuti langkah berikut dengan benar untuk menemukan data akun kamu.</p>
+              <div style={{ width: '100%', height: '160px', backgroundColor: '#222', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '16px', overflow: 'hidden', border: '1px solid #333' }}>
+                <img 
+                  src={`/guides/${gameId}.jpg`} 
+                  alt={`Petunjuk ${gameId}`} 
+                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  onError={(e) => {
+                    e.currentTarget.style.display = 'none';
+                    e.currentTarget.parentElement!.innerHTML = `<span style="color: #666; font-size: 12px;">GAMBAR PETUNJUK: ${game.name}</span>`;
+                  }}
+                />
+              </div>
+
+              <p style={{ marginBottom: '16px', color: '#fff' }}>
+                {config.guideDesc || "Ikuti langkah berikut dengan benar untuk menemukan data akun kamu."}
+              </p>
               
-              {/* Dynamic guide based on fields */}
               <div style={{ padding: '16px', backgroundColor: '#222', borderRadius: '4px', border: '1px solid #333', marginBottom: '20px' }}>
                 <div style={{ fontWeight: 'bold', color: 'var(--primary-color)', marginBottom: '8px' }}>Format:</div>
                 <div>
                   {config.fields.map((f) => f.labelId).join(gameId === 'valo' ? '#' : ' ')}
-                </div>
-                
-                <div style={{ fontWeight: 'bold', color: 'var(--primary-color)', marginTop: '16px', marginBottom: '8px' }}>Contoh:</div>
-                <div>
-                  {gameId === 'valo' ? 'kuropedia#123' : 
-                   gameId === 'mlbb' ? '12345678 (1234)' :
-                   gameId.includes('honkai') || gameId === 'genshin' ? '800123456 (Asia)' :
-                   'ourastore123'}
                 </div>
               </div>
             </div>
