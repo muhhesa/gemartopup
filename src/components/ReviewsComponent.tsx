@@ -77,10 +77,16 @@ export default function ReviewsComponent({ gameId, products }: { gameId?: string
     }
   }, [gameId, products]);
 
-  // Calculate dynamic stats
-  const baseReviewsCount = 46; // The original hardcoded number
+  // Calculate dynamic stats matching the original UI exactly
+  const baseReviewsCount = 46; 
+  const baseAverage = 4.8;
+  const baseSatisfaction = 96;
+
   const base5StarCount = 44;
-  const base4StarCount = 2; // Let's make it add up to 46
+  const base4StarCount = 0;
+  const base3StarCount = 0;
+  const base2StarCount = 0;
+  const base1StarCount = 0;
   
   // Count real reviews added by user
   const realReviews = reviews.filter(r => !r.id.startsWith('rev')); // Mock reviews have id rev0, rev1, etc.
@@ -88,22 +94,31 @@ export default function ReviewsComponent({ gameId, products }: { gameId?: string
   
   // Tally real ratings
   const realRatings = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 };
+  let realScore = 0;
+  let realSatisfied = 0;
+
   realReviews.forEach(r => {
     if (r.rating >= 1 && r.rating <= 5) {
       realRatings[r.rating as keyof typeof realRatings]++;
+      realScore += r.rating;
+      if (r.rating >= 4) {
+        realSatisfied += 1;
+      }
     }
   });
 
   const count5 = base5StarCount + realRatings[5];
   const count4 = base4StarCount + realRatings[4];
-  const count3 = realRatings[3];
-  const count2 = realRatings[2];
-  const count1 = realRatings[1];
+  const count3 = base3StarCount + realRatings[3];
+  const count2 = base2StarCount + realRatings[2];
+  const count1 = base1StarCount + realRatings[1];
 
-  // Calculate average rating
-  const totalScore = (count5 * 5) + (count4 * 4) + (count3 * 3) + (count2 * 2) + (count1 * 1);
+  // Calculate average rating decoupled from the exact bar counts to preserve the fake 4.8 baseline
+  const totalScore = (baseAverage * baseReviewsCount) + realScore;
   const averageRating = (totalScore / totalReviews).toFixed(1);
-  const satisfactionRate = Math.round(((count5 + count4) / totalReviews) * 100);
+  
+  const totalSatisfied = ((baseSatisfaction / 100) * baseReviewsCount) + realSatisfied;
+  const satisfactionRate = Math.round((totalSatisfied / totalReviews) * 100);
   
   return (
     <section className="terminal-box mb-4 reviews-section">
