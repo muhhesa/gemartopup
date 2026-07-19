@@ -5,7 +5,6 @@ import Link from "next/link";
 import "./order.css";
 import { useParams, useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
-import { supabase } from "@/lib/supabase";
 
 import catalogData from "@/data/catalog.json";
 import { getConfig } from "@/data/catalogConfig";
@@ -74,7 +73,7 @@ export default function OrderPage() {
   const getTargetIdString = () => {
     if (config.fields.length === 1) return fieldValues[config.fields[0].id] || "";
     if (config.fields.length === 2) {
-       if (gameId === 'valorant') {
+       if (gameId === 'valo') {
          return `${fieldValues[config.fields[0].id]}#${fieldValues[config.fields[1].id]}`;
        }
        return `${fieldValues[config.fields[0].id]} (${fieldValues[config.fields[1].id]})`;
@@ -143,6 +142,7 @@ export default function OrderPage() {
       
       // Save for immediate display on invoice page
       localStorage.setItem("gemartopup_pending_order", JSON.stringify({
+        invoiceId: result.invoiceId,
         gameId,
         targetId, 
         nickname: result.orderData.nickname, 

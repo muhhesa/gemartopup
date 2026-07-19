@@ -5,7 +5,6 @@ import "./invoice.css";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import { useLanguage } from "@/context/LanguageContext";
-import { supabase } from "@/lib/supabase";
 
 export default function InvoicePage() {
   const params = useParams();
@@ -63,7 +62,8 @@ export default function InvoicePage() {
             price: Number(data.price),
             fee: Number(data.fee),
             total: Number(data.total),
-            gameId: data.game_id || savedGameId
+            gameId: data.game_id || savedGameId,
+            createdAt: data.created_at
           });
           setStatus(data.status);
 
@@ -81,7 +81,10 @@ export default function InvoicePage() {
         const savedData = localStorage.getItem("gemartopup_pending_order");
         if (savedData) {
           const parsed = JSON.parse(savedData);
-          setInvoiceData(parsed);
+          setInvoiceData({
+            ...parsed,
+            createdAt: parsed.timestamp
+          });
           if (parsed.timestamp) {
             const diffSeconds = Math.floor((Date.now() - parsed.timestamp) / 1000);
             setTimeLeft(Math.max(0, 86400 - diffSeconds));
@@ -149,12 +152,23 @@ export default function InvoicePage() {
     window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${message}`, "_blank");
   };
 
-  const handleCopy = (text: string) => {
-    navigator.clipboard.writeText(text);
-    alert("Berhasil disalin: " + text);
+  const handleCopy = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      alert("Berhasil disalin: " + text);
+    } catch (err) {
+      // Fallback for non-HTTPS
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+      alert("Berhasil disalin: " + text);
+    }
   };
 
-  if (!invoiceData) return <div className="container" style={{ color: 'var(--primary)' }}>Loading data...</div>;
+  if (!invoiceData) return <div className="container" style={{ color: 'var(--primary-color)' }}>Loading data...</div>;
 
   return (
     <div className="container" style={{ position: 'relative' }}>
@@ -172,7 +186,7 @@ export default function InvoicePage() {
             </div>
             <div className="detail-row">
               <span className="label">{t("inv.time")}:</span>
-              <span className="value">{new Date().toISOString()}</span>
+              <span className="value">{invoiceData.createdAt ? new Date(invoiceData.createdAt).toLocaleString('id-ID') : new Date().toLocaleString('id-ID')}</span>
             </div>
             
             <div className="divider"></div>
@@ -214,11 +228,11 @@ export default function InvoicePage() {
                   <span className="timer-value blink-fast">{formatTime(timeLeft)}</span>
                 </div>
                 
-                <h3 style={{ color: 'var(--primary)', marginBottom: '16px', textAlign: 'center', fontSize: '14px', letterSpacing: '1px' }}>TRANSFER PEMBAYARAN KE:</h3>
+                <h3 style={{ color: 'var(--primary-color)', marginBottom: '16px', textAlign: 'center', fontSize: '14px', letterSpacing: '1px' }}>TRANSFER PEMBAYARAN KE:</h3>
                 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '32px', width: '100%' }}>
                   {invoiceData?.paymentMethod === 'OVO / GOPAY / DANA' && (
-                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px 20px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px 20px', borderRadius: '2px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontWeight: '500', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '4px', fontSize: '13px' }}>OVO / GOPAY / DANA</div>
                       <div style={{ fontSize: '22px', fontWeight: 'bold', letterSpacing: '1.5px', color: '#fff', marginBottom: '4px' }}>08115234943</div>
@@ -226,7 +240,7 @@ export default function InvoicePage() {
                     </div>
                     <button 
                       onClick={() => handleCopy("08115234943")}
-                      style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '8px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', outline: 'none' }}
+                      style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '8px 16px', borderRadius: '2px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', outline: 'none' }}
                     >
                       SALIN
                     </button>
@@ -234,7 +248,7 @@ export default function InvoicePage() {
                   )}
 
                   {invoiceData?.paymentMethod === 'Bank BRI' && (
-                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px 20px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px 20px', borderRadius: '2px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontWeight: '500', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '4px', fontSize: '13px' }}>Bank BRI</div>
                       <div style={{ fontSize: '22px', fontWeight: 'bold', letterSpacing: '1.5px', color: '#fff', marginBottom: '4px' }}>034001087436509</div>
@@ -242,7 +256,7 @@ export default function InvoicePage() {
                     </div>
                     <button 
                       onClick={() => handleCopy("034001087436509")}
-                      style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '8px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', outline: 'none' }}
+                      style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '8px 16px', borderRadius: '2px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', outline: 'none' }}
                     >
                       SALIN
                     </button>
@@ -250,7 +264,7 @@ export default function InvoicePage() {
                   )}
 
                   {invoiceData?.paymentMethod === 'Bank BCA' && (
-                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px 20px', borderRadius: '12px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div style={{ background: 'rgba(255, 255, 255, 0.03)', padding: '16px 20px', borderRadius: '2px', border: '1px solid rgba(255, 255, 255, 0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <div>
                       <div style={{ fontWeight: '500', color: 'rgba(255, 255, 255, 0.6)', marginBottom: '4px', fontSize: '13px' }}>Bank BCA</div>
                       <div style={{ fontSize: '22px', fontWeight: 'bold', letterSpacing: '1.5px', color: '#fff', marginBottom: '4px' }}>7894308207</div>
@@ -258,7 +272,7 @@ export default function InvoicePage() {
                     </div>
                     <button 
                       onClick={() => handleCopy("7894308207")}
-                      style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '8px 16px', borderRadius: '20px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', outline: 'none' }}
+                      style={{ background: 'rgba(255, 255, 255, 0.1)', color: '#fff', border: '1px solid rgba(255, 255, 255, 0.2)', padding: '8px 16px', borderRadius: '2px', fontSize: '12px', fontWeight: '600', cursor: 'pointer', outline: 'none' }}
                     >
                       SALIN
                     </button>
@@ -426,7 +440,7 @@ export default function InvoicePage() {
                   item: invoiceData?.packageName || "Layanan Topup",
                   date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
                   rating: reviewRating,
-                  comment: reviewComment || "Sangat puas dengan layanannya"
+                  comment: reviewComment.trim() || "Sangat puas dengan layanannya"
                 };
                 
                 reviews.unshift(newReview);

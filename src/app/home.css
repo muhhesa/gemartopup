@@ -14,7 +14,7 @@
 .hero-title .cursor-block {
   display: inline-block;
   animation: blink 1s step-end infinite;
-  color: var(--primary);
+  color: var(--primary-color);
 }
 
 @keyframes blink {
@@ -332,21 +332,7 @@
 }
 
 @media (max-width: 900px) {
-  @media (max-width: 600px) {
-  .home-layout {
-    flex-direction: column-reverse;
-  }
-  .trending-sidebar {
-    width: 100%;
-    position: static;
-    margin-bottom: 24px;
-  }
-  .home-main-col {
-    width: 100%;
-  }
-}
-
-.hero-container {
+  .hero-container {
     flex-direction: column;
   }
   .clock-widget {
@@ -360,3 +346,5 @@
     font-size: 12px;
   }
 }
+
+.game-card.disabled { pointer-events: none; }

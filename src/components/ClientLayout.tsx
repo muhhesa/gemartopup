@@ -129,14 +129,14 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar: () => void }) {
           {showResults && searchQuery.length > 0 && (
             <div className="search-dropdown" style={{
               position: 'absolute', top: '100%', left: 0, right: 0, marginTop: '12px',
-              backgroundColor: '#111', border: '1px solid #333', borderRadius: '12px',
+              backgroundColor: '#111', border: '1px solid #333', borderRadius: '2px',
               padding: '8px', zIndex: 1000, maxHeight: '400px', overflowY: 'auto',
               boxShadow: '0 10px 25px rgba(0,0,0,0.8)'
             }}>
               {searchResults.length > 0 ? (
                 searchResults.map(game => (
                   <div key={game.id} 
-                       style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', borderRadius: '8px', transition: 'background-color 0.2s' }}
+                       style={{ padding: '10px 16px', display: 'flex', alignItems: 'center', gap: '14px', cursor: 'pointer', borderRadius: '2px', transition: 'background-color 0.2s' }}
                        onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#222'}
                        onMouseLeave={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
                        onClick={() => {

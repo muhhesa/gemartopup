@@ -22,19 +22,48 @@ export default function ReviewPage() {
       setIsReviewSubmitted(true);
     }
 
+    const fetchInvoice = async () => {
+      try {
+        const res = await fetch(`/api/invoice/${invoiceId}`);
+        const result = await res.json();
+        if (result.success) {
+          const data = result.data;
+          setInvoiceData({
+            targetId: data.target_id,
+            nickname: data.nickname,
+            packageName: data.package_name,
+            paymentMethod: data.payment_method,
+            price: Number(data.price),
+            fee: Number(data.fee),
+            total: Number(data.total),
+            gameId: data.game_id || invoiceId.split('-')[1]?.toLowerCase() || "general"
+          });
+        } else {
+          setError(result.error || "Data pesanan tidak ditemukan.");
+        }
+      } catch (err) {
+        setError("Gagal menghubungi server.");
+      }
+    };
+
     // Try to get invoice data from localStorage
     const savedData = localStorage.getItem("gemartopup_pending_order");
     if (savedData) {
       try {
         const parsed = JSON.parse(savedData);
-        setInvoiceData(parsed);
+        // Ensure this pending order actually matches the invoice we are reviewing
+        if (parsed.invoiceId === invoiceId) {
+          setInvoiceData(parsed);
+        } else {
+          fetchInvoice();
+        }
       } catch (e) {
-        setError("Gagal memuat data pesanan.");
+        fetchInvoice();
       }
     } else {
-      setError("Data pesanan tidak ditemukan.");
+      fetchInvoice();
     }
-  }, []);
+  }, [invoiceId]);
 
   const handleSubmit = () => {
     const gameIdFromInvoice = invoiceId.split('-')[1]?.toLowerCase();
@@ -52,7 +81,7 @@ export default function ReviewPage() {
       item: invoiceData?.packageName || "Layanan Topup",
       date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
       rating: reviewRating,
-      comment: reviewComment || "Sangat puas dengan layanannya"
+      comment: reviewComment.trim() || "Sangat puas dengan layanannya"
     };
 
     reviews.unshift(newReview);
@@ -131,7 +160,7 @@ export default function ReviewPage() {
           </>
         ) : (
           <div style={{ textAlign: 'center', padding: '20px 0' }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🎉</div>
+            <div style={{ fontSize: '48px', marginBottom: '16px', color: 'var(--success)' }}>[OK]</div>
             <h2 style={{ color: 'var(--success)', marginBottom: '16px' }}>TERIMA KASIH!</h2>
             <p style={{ marginBottom: '24px', color: 'var(--text-dim)' }}>
               Ulasan Anda sangat berarti bagi kami dan pembeli lainnya.

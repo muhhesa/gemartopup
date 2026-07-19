@@ -75,8 +75,13 @@ export default function RecentPurchasePopup() {
   // Try to find the game icon (using the first letter or game code if available)
   // For simplicity, we just extract a generic icon or use the package name
   const getGameCode = (packageName: string) => {
-    const match = packageName.match(/\(([^)]+)\)/);
-    return match ? match[1] : "GAME";
+    const matches = packageName.match(/\(([^)]+)\)/g);
+    if (matches && matches.length > 0) {
+      // Get the LAST parenthetical match (which is the game name)
+      const lastMatch = matches[matches.length - 1];
+      return lastMatch.replace(/[()]/g, '');
+    }
+    return "GAME";
   };
 
   const gameCode = getGameCode(tx.package_name);

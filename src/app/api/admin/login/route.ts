@@ -4,7 +4,12 @@ export async function POST(request: Request) {
   try {
     const { password } = await request.json();
     
-    if (password === process.env.ADMIN_PASSWORD) {
+    const adminPassword = process.env.ADMIN_PASSWORD;
+    if (!adminPassword || !password) {
+      return NextResponse.json({ success: false, message: "Server configuration error" }, { status: 500 });
+    }
+    
+    if (password === adminPassword) {
       return NextResponse.json({ success: true });
     }
     

@@ -19,6 +19,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, message: "Unauthorized: Invalid password" }, { status: 401 });
     }
 
+    const VALID_STATUSES = ['AWAITING_PAYMENT', 'PROCESS', 'PENDING', 'SUCCESS', 'FAILED', 'EXPIRED'];
+    if (!newStatus || !VALID_STATUSES.includes(newStatus)) {
+      return NextResponse.json({ success: false, message: `Status tidak valid. Harus salah satu dari: ${VALID_STATUSES.join(', ')}` }, { status: 400 });
+    }
+
     // Initialize a Supabase client with the SERVICE ROLE KEY (bypasses RLS)
     const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey, {
       auth: {

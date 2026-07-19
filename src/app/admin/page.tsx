@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { supabase } from "@/lib/supabase";
 import "./admin.css";
 
 export default function AdminDashboard() {
@@ -130,7 +129,7 @@ export default function AdminDashboard() {
                       hour: '2-digit', minute: '2-digit'
                     })}
                   </td>
-                  <td style={{ fontFamily: 'monospace', color: 'var(--primary)' }}>
+                  <td style={{ fontFamily: 'monospace', color: 'var(--primary-color)' }}>
                     <a href={`/invoice/${order.invoice_id}`} target="_blank" rel="noreferrer" style={{ color: 'inherit', textDecoration: 'none' }}>
                       {order.invoice_id}
                     </a>

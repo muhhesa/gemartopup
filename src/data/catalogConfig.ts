@@ -68,7 +68,7 @@ export const GAME_CONFIGS: Record<string, GameConfig> = {
     ],
     needsNicknameCheck: true
   },
-  "valorant": {
+  "valo": {
     fields: [
       { id: "userId", labelId: "Riot ID", type: "text", placeholder: "Name", required: true },
       { id: "zoneId", labelId: "Tagline", type: "text", placeholder: "#Tag", required: true }
@@ -81,7 +81,7 @@ export const GAME_CONFIGS: Record<string, GameConfig> = {
     ],
     needsNicknameCheck: true
   },
-  "honkai-star-rail": {
+  "honkai--star-rail": {
     fields: [
       { id: "userId", labelId: "UID", type: "number", required: true },
       { id: "zoneId", labelId: "Server", type: "dropdown", options: SERVER_OPTIONS, required: true }

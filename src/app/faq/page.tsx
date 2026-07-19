@@ -128,7 +128,7 @@ export default function FAQPage() {
           <h2>{t("faq.more_title")}</h2>
           <p>
             {t("faq.more_desc")}{" "}
-            <a href="https://wa.me/628115234943" target="_blank" rel="noreferrer" style={{ color: 'var(--primary-color, #00e5ff)' }}>
+            <a href="https://wa.me/628115234943" target="_blank" rel="noreferrer" style={{ color: 'var(--primary-color, #ff9100)' }}>
               WhatsApp
             </a>.
           </p>

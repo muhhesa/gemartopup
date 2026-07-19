@@ -15,7 +15,7 @@
 .invoice-header h2 {
   font-size: 18px;
   letter-spacing: 2px;
-  color: var(--primary);
+  color: var(--primary-color);
 }
 
 .status-badge {
@@ -26,13 +26,13 @@
 }
 
 .status-badge.awaiting_payment {
-  color: var(--primary);
-  border-color: var(--primary);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
 .status-badge.process {
-  color: var(--primary);
-  border-color: var(--primary);
+  color: var(--primary-color);
+  border-color: var(--primary-color);
 }
 
 .status-badge.pending {
@@ -75,7 +75,7 @@
 }
 
 .detail-row .value.highlight {
-  color: var(--primary);
+  color: var(--primary-color);
 }
 
 .divider {
@@ -105,7 +105,7 @@
 }
 
 .amount-value {
-  color: var(--primary);
+  color: var(--primary-color);
   font-size: 24px;
   font-weight: 800;
 }
@@ -164,7 +164,7 @@
 .qris-scan-text {
   position: absolute;
   bottom: -30px;
-  color: var(--primary);
+  color: var(--primary-color);
   font-size: 14px;
   letter-spacing: 2px;
   white-space: nowrap;
@@ -191,11 +191,11 @@
 }
 
 .status-box.process .status-icon {
-  border: 2px dashed var(--primary);
-  color: var(--primary);
+  border: 2px dashed var(--primary-color);
+  color: var(--primary-color);
   animation: spin 4s linear infinite;
 }
-.status-box.process h3 { color: var(--primary); }
+.status-box.process h3 { color: var(--primary-color); }
 
 .status-box.pending .status-icon {
   border: 2px solid var(--danger);
@@ -254,7 +254,7 @@
 .sim-panel button {
   background: transparent;
   border: 1px dashed var(--border-color);
-  color: var(--primary);
+  color: var(--primary-color);
   padding: 4px 8px;
   font-size: 10px;
   cursor: pointer;
@@ -264,7 +264,7 @@
 
 .sim-panel button:hover {
   background: var(--surface-2);
-  border-color: var(--primary);
+  border-color: var(--primary-color);
 }
 
 @media print {

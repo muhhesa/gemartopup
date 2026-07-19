@@ -21,6 +21,14 @@ export async function POST(req: Request) {
     const data = await req.json();
     const { gameId, nominalId, paymentId, targetId, nickname, whatsapp } = data;
 
+    // 0. Validasi Input Dasar
+    if (!targetId || typeof targetId !== 'string' || targetId.trim().length === 0) {
+      return NextResponse.json({ error: 'Target ID wajib diisi' }, { status: 400 });
+    }
+    if (!whatsapp || typeof whatsapp !== 'string' || whatsapp.length < 9 || whatsapp.length > 20) {
+      return NextResponse.json({ error: 'Nomor WhatsApp tidak valid' }, { status: 400 });
+    }
+
     // 1. Validasi Game
     const game = catalogData.games.find(g => g.id === gameId);
     if (!game) {
@@ -53,10 +61,12 @@ export async function POST(req: Request) {
     // 6. Buat Data Pesanan (Status dipaksa AWAITING_PAYMENT)
     const orderData = {
       invoice_id: invoiceId,
+      game_id: gameId,
       target_id: targetId,
       nickname: nickname || null,
       package_name: packageName,
       payment_method: paymentMethod,
+      whatsapp: whatsapp,
       price: price,
       fee: fee,
       total: totalPrice,

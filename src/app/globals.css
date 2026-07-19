@@ -28,7 +28,7 @@ html, body {
 body {
   background-color: var(--bg-color);
   color: var(--text-main);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
@@ -43,7 +43,7 @@ a {
 
 /* Base Styles */
 h1, h2, h3, h4, h5, h6 {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Inter', Arial, Helvetica, sans-serif;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: -0.02em;
@@ -163,7 +163,7 @@ button {
   align-items: center;
   background-color: #111;
   border: 1px solid #333;
-  border-radius: 24px;
+  border-radius: 2px;
   padding: 8px 16px;
   width: 400px;
   max-width: 40vw;
@@ -277,18 +277,6 @@ button {
   padding: 40px 0;
 }
 
-.main-footer {
-  border-top: 1px solid var(--border-color);
-  background-color: var(--surface-1);
-  padding: 16px 0;
-  font-size: 12px;
-  color: var(--text-dim);
-}
-
-.footer-line {
-  display: flex;
-  justify-content: space-between;
-}
 /* Sidebar Layout */
 .app-layout { display: flex; min-height: 100vh; position: relative; }
 .main-wrapper { flex: 1; transition: transform 0.3s ease; width: 100%; }
@@ -408,7 +396,7 @@ button {
 .table-responsive {
   width: 100%;
   overflow-x: auto;
-  border-radius: 8px;
+  border-radius: 2px;
   background-color: var(--surface-1);
 }
 .modern-table {
@@ -446,7 +434,7 @@ button {
   display: inline-block;
 }
 .status-badge-small.success { background-color: rgba(0, 230, 118, 0.1); color: var(--success); }
-.status-badge-small.process { background-color: rgba(0, 229, 255, 0.1); color: #00e5ff; }
+.status-badge-small.process { background-color: rgba(255, 145, 0, 0.1); color: var(--primary-color); }
 .status-badge-small.awaiting_payment { background-color: rgba(255, 145, 0, 0.1); color: var(--primary-color); }
 .status-badge-small.failed, .status-badge-small.expired { background-color: rgba(255, 23, 68, 0.1); color: var(--danger); }
 
@@ -459,7 +447,7 @@ button {
   width: 320px;
   background-color: var(--surface-1);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
+  border-radius: 2px;
   padding: 12px;
   display: flex;
   align-items: center;
@@ -519,3 +507,6 @@ button {
   }
 }
 
+
+.blink-fast { animation: blink-fast 0.5s infinite; }
+@keyframes blink-fast { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
