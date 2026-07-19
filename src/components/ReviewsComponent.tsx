@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import "./ReviewsComponent.css";
 
 interface Review {
@@ -36,8 +36,20 @@ const generateMockReviews = (products: any[]): Review[] => {
   return reviews;
 };
 
-export default function ReviewsComponent({ products }: { products?: any[] }) {
-  const reviews = products && products.length > 0 ? generateMockReviews(products) : [];
+export default function ReviewsComponent({ gameId, products }: { gameId?: string, products?: any[] }) {
+  const [reviews, setReviews] = useState<Review[]>([]);
+
+  useEffect(() => {
+    const mockReviews = products && products.length > 0 ? generateMockReviews(products) : [];
+    
+    if (gameId) {
+      const savedReviews = JSON.parse(localStorage.getItem(`gemartopup_reviews_${gameId}`) || "[]");
+      // combine real reviews with mock reviews
+      setReviews([...savedReviews, ...mockReviews]);
+    } else {
+      setReviews(mockReviews);
+    }
+  }, [gameId, products]);
   
   return (
     <section className="terminal-box mb-4 reviews-section">

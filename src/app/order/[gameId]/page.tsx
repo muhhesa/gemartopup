@@ -143,6 +143,7 @@ export default function OrderPage() {
       
       // Save for immediate display on invoice page
       localStorage.setItem("gemartopup_pending_order", JSON.stringify({
+        gameId,
         targetId, 
         nickname: result.orderData.nickname, 
         packageName: result.orderData.package_name, 
@@ -173,7 +174,7 @@ export default function OrderPage() {
 
       <div className="order-grid">
         <aside className="order-left-sidebar">
-          <ReviewsComponent products={nominalsList} />
+          <ReviewsComponent gameId={gameId} products={nominalsList} />
         </aside>
 
         <div className="order-main">

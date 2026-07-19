@@ -16,6 +16,12 @@ export default function InvoicePage() {
   // Available statuses: AWAITING_PAYMENT, PROCESS, PENDING, SUCCESS, FAILED, EXPIRED
   const [status, setStatus] = useState("AWAITING_PAYMENT");
   const [invoiceData, setInvoiceData] = useState<any>(null);
+  
+  // Review states
+  const [reviewRating, setReviewRating] = useState<number>(5);
+  const [reviewComment, setReviewComment] = useState<string>("");
+  const [isReviewSubmitted, setIsReviewSubmitted] = useState<boolean>(false);
+  
   const ADMIN_WHATSAPP = "628115234943";
 
   useEffect(() => {
@@ -35,6 +41,14 @@ export default function InvoicePage() {
         const data = result.data;
 
         if (data) {
+          const savedData = localStorage.getItem("gemartopup_pending_order");
+          let savedGameId = undefined;
+          if (savedData) {
+            try {
+              savedGameId = JSON.parse(savedData).gameId;
+            } catch (e) {}
+          }
+          
           setInvoiceData({
             targetId: data.target_id,
             nickname: data.nickname,
@@ -42,7 +56,8 @@ export default function InvoicePage() {
             paymentMethod: data.payment_method,
             price: Number(data.price),
             fee: Number(data.fee),
-            total: Number(data.total)
+            total: Number(data.total),
+            gameId: data.game_id || savedGameId
           });
           setStatus(data.status);
 
@@ -268,11 +283,84 @@ export default function InvoicePage() {
             )}
 
             {status === "SUCCESS" && (
-              <div className="status-box success">
-                <div className="status-icon">✓</div>
-                <h3>{t("status.success")}</h3>
-                <p>Pesanan telah berhasil dikirim ke akun Anda!</p>
-              </div>
+              <>
+                <div className="status-box success">
+                  <div className="status-icon">✓</div>
+                  <h3>{t("status.success")}</h3>
+                  <p>Pesanan telah berhasil dikirim ke akun Anda!</p>
+                </div>
+
+                {!isReviewSubmitted ? (
+                  <div className="terminal-box" style={{ marginTop: '24px', padding: '24px', border: '1px solid var(--primary-color)' }}>
+                    <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: 'var(--primary-color)' }}>BERIKAN ULASAN</h3>
+                    <p style={{ fontSize: '14px', color: 'var(--text-dim)', marginBottom: '16px' }}>
+                      Bagaimana pengalaman Anda membeli <strong>{invoiceData?.packageName}</strong>?
+                    </p>
+                    
+                    <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
+                      {[1, 2, 3, 4, 5].map((star) => (
+                        <svg 
+                          key={star}
+                          onClick={() => setReviewRating(star)}
+                          style={{ cursor: 'pointer', transition: 'transform 0.1s' }}
+                          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                          xmlns="http://www.w3.org/2000/svg" 
+                          viewBox="0 0 24 24" 
+                          width="32" 
+                          height="32" 
+                          fill={star <= reviewRating ? "var(--primary-color)" : "transparent"} 
+                          stroke={star <= reviewRating ? "var(--primary-color)" : "#555"}
+                          strokeWidth="2"
+                        >
+                          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                        </svg>
+                      ))}
+                    </div>
+                    
+                    <textarea 
+                      className="input-field"
+                      style={{ width: '100%', minHeight: '80px', marginBottom: '16px' }}
+                      placeholder="Tulis ulasan Anda di sini..."
+                      value={reviewComment}
+                      onChange={(e) => setReviewComment(e.target.value)}
+                    ></textarea>
+                    
+                    <button 
+                      className="btn-primary" 
+                      style={{ width: '100%' }}
+                      onClick={() => {
+                        const gameId = invoiceData?.gameId;
+                        if (!gameId) return;
+                        
+                        const reviews = JSON.parse(localStorage.getItem(`gemartopup_reviews_${gameId}`) || "[]");
+                        const newReview = {
+                          id: `rev-${Date.now()}`,
+                          name: "628" + Math.floor(1000000 + Math.random() * 9000000) + "***",
+                          item: invoiceData.packageName,
+                          date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+                          rating: reviewRating,
+                          comment: reviewComment || "Sangat puas dengan layanannya"
+                        };
+                        
+                        reviews.unshift(newReview);
+                        localStorage.setItem(`gemartopup_reviews_${gameId}`, JSON.stringify(reviews));
+                        setIsReviewSubmitted(true);
+                      }}
+                    >
+                      KIRIM ULASAN
+                    </button>
+                  </div>
+                ) : (
+                  <div className="terminal-box" style={{ marginTop: '24px', padding: '24px', textAlign: 'center', border: '1px solid var(--success)' }}>
+                    <div style={{ fontSize: '24px', marginBottom: '8px' }}>🎉</div>
+                    <h3 style={{ margin: '0 0 8px 0', fontSize: '16px', color: 'var(--success)' }}>TERIMA KASIH</h3>
+                    <p style={{ fontSize: '14px', color: 'var(--text-dim)' }}>
+                      Ulasan Anda telah dikirim dan akan sangat membantu pembeli lain!
+                    </p>
+                  </div>
+                )}
+              </>
             )}
 
             {status === "FAILED" && (
