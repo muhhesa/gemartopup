@@ -104,18 +104,18 @@ function FooterContent() {
         
         <div className="footer-col links-col">
           <h4>{t("footer.terms")}</h4>
-          <Link href="#">{t("footer.support")}</Link>
-          <Link href="#">{t("footer.faq")}</Link>
-          <Link href="#">{t("footer.tos")}</Link>
-          <Link href="#">{t("footer.privacy")}</Link>
+          <Link href="/support">{t("footer.support")}</Link>
+          <Link href="/faq">{t("footer.faq")}</Link>
+          <Link href="/terms">{t("footer.tos")}</Link>
+          <Link href="/privacy">{t("footer.privacy")}</Link>
         </div>
         
         <div className="footer-col action-col">
           <h4>{t("footer.follow")}</h4>
           <div className="links-col" style={{ marginBottom: '24px' }}>
-            <Link href="#">Instagram</Link>
-            <Link href="#">Tiktok</Link>
-            <Link href="#">Whatsapp</Link>
+            <a href="https://www.instagram.com/gemartopup/" target="_blank" rel="noreferrer">Instagram</a>
+            <a href="https://www.tiktok.com/@itzmechannel" target="_blank" rel="noreferrer">Tiktok</a>
+            <a href="https://wa.me/628115234943" target="_blank" rel="noreferrer">Whatsapp</a>
           </div>
         </div>
       </div>
