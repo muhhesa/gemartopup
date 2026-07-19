@@ -8,6 +8,12 @@ import { useState } from "react";
 import catalogData from "@/data/catalog.json";
 const GAMES = catalogData.games;
 
+const POPULAR_GAME_IDS = ['mlbb', 'ff', 'pubg', 'valo'];
+const TRENDING_GAME_IDS = ['mlbb', 'ff', 'pubg', 'valo', 'point-blank'];
+
+const popularGames = POPULAR_GAME_IDS.map(id => GAMES.find(g => g.id === id)).filter(Boolean) as typeof GAMES;
+const trendingGames = TRENDING_GAME_IDS.map(id => GAMES.find(g => g.id === id)).filter(Boolean) as typeof GAMES;
+
 export default function GamesPage() {
   const { t } = useLanguage();
   const [activeCategory, setActiveCategory] = useState("all");
@@ -23,7 +29,7 @@ export default function GamesPage() {
           <h2>{t("home.popular")}</h2>
         </div>
         <div className="game-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))' }}>
-          {GAMES.slice(0, 4).map((game) => (
+          {popularGames.map((game) => (
             <Link href={`/order/${game.id}`} key={`pop-${game.id}`} className="game-card" style={{ position: 'relative' }}>
               <div className="popular-badge">HOT</div>
               <div className="game-card-inner">
@@ -94,7 +100,7 @@ export default function GamesPage() {
           <aside className="trending-sidebar">
           <div className="trending-header">TRENDING</div>
           <div className="trending-list">
-            {GAMES.slice(0, 5).map(game => (
+            {trendingGames.map(game => (
               <Link href={`/order/${game.id}`} key={`trend-${game.id}`} className="trending-item">
                 <div className="trending-icon">{game.name.charAt(0)}</div>
                 <div>

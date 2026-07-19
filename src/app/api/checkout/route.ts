@@ -19,7 +19,7 @@ const PAYMENTS = [
 export async function POST(req: Request) {
   try {
     const data = await req.json();
-    const { gameId, nominalId, paymentId, targetId, nickname } = data;
+    const { gameId, nominalId, paymentId, targetId, nickname, whatsapp } = data;
 
     // 1. Validasi Game
     const game = catalogData.games.find(g => g.id === gameId);
@@ -80,6 +80,7 @@ export async function POST(req: Request) {
 *Status:* ⏳ Menunggu Pembayaran
 *Item:* ${packageName}
 *Target ID:* \`${targetId}\` ${nickname ? `(${nickname})` : ''}
+*WA Pelanggan:* ${whatsapp ? `[${whatsapp}](https://wa.me/${whatsapp})` : '-'}
 *Metode Bayar:* ${paymentMethod}
 *Total Tagihan:* *Rp ${Number(totalPrice).toLocaleString('id-ID')}*
 

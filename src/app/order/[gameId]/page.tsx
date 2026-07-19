@@ -9,6 +9,7 @@ import { supabase } from "@/lib/supabase";
 
 import catalogData from "@/data/catalog.json";
 import { getConfig } from "@/data/catalogConfig";
+import ReviewsComponent from "@/components/ReviewsComponent";
 
 // Build game details map
 const GAME_DETAILS: Record<string, any> = {};
@@ -40,6 +41,7 @@ export default function OrderPage() {
   
   const [selectedNominal, setSelectedNominal] = useState<number | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
+  const [whatsapp, setWhatsapp] = useState<string>("");
 
   const [nickname, setNickname] = useState<string | null>(null);
   const [isChecking, setIsChecking] = useState(false);
@@ -111,6 +113,10 @@ export default function OrderPage() {
       alert("AKUN TIDAK DITEMUKAN ATAU BELUM DICEK. TIDAK DAPAT MELANJUTKAN PESANAN!");
       return;
     }
+    if (!whatsapp || whatsapp.length < 9) {
+      alert("No WhatsApp wajib diisi dengan benar (min. 9 angka)!");
+      return;
+    }
 
     const targetId = getTargetIdString();
     
@@ -123,6 +129,7 @@ export default function OrderPage() {
           nominalId: selectedNominal,
           paymentId: selectedPayment,
           targetId,
+          whatsapp,
           nickname: config.needsNicknameCheck ? nickname : null
         })
       });
@@ -274,6 +281,71 @@ export default function OrderPage() {
               ))}
             </div>
           </section>
+
+          <section className="terminal-box mb-4">
+            <h2 className="step-title" style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ 
+                display: 'inline-flex', 
+                alignItems: 'center', 
+                justifyContent: 'center', 
+                width: '24px', 
+                height: '24px', 
+                background: 'var(--primary-color)', 
+                color: '#000', 
+                borderRadius: '4px',
+                fontSize: '14px',
+                fontWeight: 'bold',
+                fontStyle: 'italic'
+              }}>6</span>
+              Detail Kontak
+            </h2>
+            <div className="form-control" style={{ marginTop: '16px' }}>
+              <label>No. WhatsApp <span style={{ color: 'var(--danger)' }}>*</span></label>
+              <div style={{ display: 'flex' }}>
+                <div style={{ 
+                  background: '#333', 
+                  padding: '0 16px', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  borderTopLeftRadius: '4px', 
+                  borderBottomLeftRadius: '4px',
+                  border: '1px solid var(--border-color)',
+                  borderRight: 'none',
+                  fontSize: '16px'
+                }}>🇮🇩</div>
+                <input 
+                  type="number" 
+                  className="input-field" 
+                  placeholder="6281xxxxxxxxx"
+                  value={whatsapp}
+                  onChange={(e) => setWhatsapp(e.target.value.replace(/[^0-9]/g, ''))}
+                  style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+                />
+              </div>
+              <div style={{ fontSize: '11px', fontStyle: 'italic', color: 'var(--text-dim)', marginTop: '4px' }}>
+                *Contoh: 62821xxxxxxxxx (No WhatsApp wajib diisi)
+              </div>
+              <div style={{ 
+                marginTop: '12px', 
+                padding: '10px 14px', 
+                background: 'rgba(29, 155, 240, 0.1)', 
+                border: '1px solid rgba(29, 155, 240, 0.3)',
+                borderRadius: '6px',
+                color: '#1d9bf0',
+                fontSize: '13px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px'
+              }}>
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">
+                  <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
+                </svg>
+                Informasi: Bukti transaksi akan kami kirim ke WhatsApp yang kamu isi di atas.
+              </div>
+            </div>
+          </section>
+
+          <ReviewsComponent />
         </div>
 
         <aside className="order-sidebar">
