@@ -15,12 +15,23 @@ interface Review {
 const generateMockReviews = (products: any[], gameId?: string): Review[] => {
   if (!products || products.length === 0) return [];
   
-  // Use a predictable seed based on products to ensure same products = same reviews
-  const comments = ["Sangat puas", "Harga murah", "Proses cepat", "Mantap", "Gampang banget", "Auto sultan", "Top up langganan di sini"];
-  const dates = ["18 Jul 2026", "13 Jul 2026", "11 Jul 2026", "01 Jul 2026", "29 Jun 2026", "15 Jun 2026", "02 Jun 2026"];
-  
   const pulsaIds = ['telkomsel', 'axis', 'xl', 'indosat', 'tri', 'smartfren', 'pulsa'];
+  const ewalletIds = ['dana', 'ovo', 'gopay', 'shopeepay', 'linkaja'];
+  
   const isPulsa = pulsaIds.includes(gameId?.toLowerCase() || "");
+  const isEwallet = ewalletIds.includes(gameId?.toLowerCase() || "");
+  
+  // Use a predictable seed based on products to ensure same products = same reviews
+  let comments = ["Sangat puas", "Harga murah", "Proses cepat", "Mantap", "Gampang banget", "Top up langganan di sini"];
+  if (isPulsa) {
+    comments = ["Pulsa langsung masuk", "Kuota murah banget", "Koneksi jadi lancar", "Proses isi ulang kilat", "Mantap buat ngenet", "Paket data langsung aktif"];
+  } else if (isEwallet) {
+    comments = ["Saldo langsung nambah", "Bebas admin, mantap", "Top up e-wallet paling cepet", "Aman dan terpercaya", "Langsung bisa buat jajan", "Transfer kilat banget"];
+  } else {
+    comments = ["Diamond langsung masuk bos", "Mantap buat gacha skin", "Auto sultan", "Proses secepat kilat", "Siap push rank", "Harga termurah sejagat", "Mantap langsung beli pass"];
+  }
+
+  const dates = ["18 Jul 2026", "13 Jul 2026", "11 Jul 2026", "01 Jul 2026", "29 Jun 2026", "15 Jun 2026", "02 Jun 2026"];
   
   const reviews: Review[] = [];
   // generate 5 reviews
@@ -29,7 +40,7 @@ const generateMockReviews = (products: any[], gameId?: string): Review[] => {
     
     // Generate smart mock name
     let mockName = "";
-    if (isPulsa) {
+    if (isPulsa || isEwallet) {
       let prefix = "081";
       if (gameId === 'telkomsel') prefix = "0812";
       else if (gameId === 'axis') prefix = "0838";
@@ -37,6 +48,8 @@ const generateMockReviews = (products: any[], gameId?: string): Review[] => {
       else if (gameId === 'indosat') prefix = "0857";
       else if (gameId === 'tri') prefix = "0896";
       else if (gameId === 'smartfren') prefix = "0881";
+      else prefix = ["0812", "0813", "0821", "0857", "0895", "0838", "0882"][i % 7]; // Random valid prefix for ewallets or unknown pulsa
+      
       const suffix = Math.floor(1000 + (i * 999) % 9000);
       mockName = `${prefix}****${suffix}`;
     } else {
