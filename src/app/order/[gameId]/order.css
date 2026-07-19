@@ -34,14 +34,52 @@
 
 .order-grid {
   display: grid;
-  grid-template-columns: 2fr 1fr;
+  grid-template-columns: 280px 1fr 320px;
   gap: 24px;
   align-items: start;
+}
+
+.order-left-sidebar {
+  order: 1;
+}
+
+.order-main {
+  order: 2;
+}
+
+.order-sidebar {
+  order: 3;
+}
+
+@media (max-width: 1024px) {
+  .order-grid {
+    grid-template-columns: 1fr 320px;
+  }
+  .order-left-sidebar {
+    grid-column: 1 / -1;
+    order: 3;
+  }
+  .order-main {
+    order: 1;
+  }
+  .order-sidebar {
+    order: 2;
+  }
 }
 
 @media (max-width: 768px) {
   .order-grid {
     grid-template-columns: 1fr;
+  }
+  .order-left-sidebar {
+    order: 3;
+    grid-column: auto;
+  }
+  .order-main {
+    order: 1;
+  }
+  .order-sidebar {
+    order: 2;
   }
 }
 
@@ -194,6 +232,7 @@
 .mt-4 {
   margin-top: 24px;
 }
+
 @media (max-width: 768px) {
   .input-group {
     flex-direction: column;

@@ -172,6 +172,10 @@ export default function OrderPage() {
       </div>
 
       <div className="order-grid">
+        <aside className="order-left-sidebar">
+          <ReviewsComponent />
+        </aside>
+
         <div className="order-main">
           <section className="terminal-box mb-4">
             <h2 className="step-title">{t("order.step1")}</h2>
@@ -344,8 +348,6 @@ export default function OrderPage() {
               </div>
             </div>
           </section>
-
-          <ReviewsComponent />
         </div>
 
         <aside className="order-sidebar">
