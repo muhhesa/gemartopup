@@ -49,6 +49,9 @@
 
 .order-sidebar {
   order: 3;
+  position: sticky;
+  top: 100px;
+  align-self: start;
 }
 
 @media (max-width: 1024px) {
@@ -189,9 +192,7 @@
 }
 
 .sticky-sidebar {
-  position: sticky;
-  top: 100px;
-  align-self: start;
+  /* removed to avoid double sticky */
 }
 
 .summary-details {

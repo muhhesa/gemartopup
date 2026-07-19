@@ -50,6 +50,11 @@ export default function Home() {
               <div className="game-card-inner">
                 <div className="game-code">{game.code}</div>
                 <div className="game-name">{game.name}</div>
+                <div className="game-status">
+                  {t("home.status")}: <span className={game.status === 'ACTIVE' ? 'status-active' : 'status-maintenance'}>
+                    {game.status === 'ACTIVE' ? t("home.active") : t("home.maintenance")}
+                  </span>
+                </div>
               </div>
             </Link>
           ))}
