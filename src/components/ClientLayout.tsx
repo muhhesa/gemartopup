@@ -34,6 +34,32 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) 
   );
 }
 
+function GameIcon({ game }: { game: { id: string, name: string } }) {
+  const [error, setError] = useState(false);
+  
+  if (error) {
+    return (
+      <div style={{ 
+        width: '40px', height: '40px', borderRadius: '8px', flexShrink: 0,
+        backgroundColor: '#000', border: '1px solid var(--primary-color)',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        color: 'var(--primary-color)', fontSize: '14px', fontWeight: 800
+      }}>
+        {game.name.substring(0, 2).toUpperCase()}
+      </div>
+    );
+  }
+  
+  return (
+    <img 
+      src={`/img/${game.id}.jpg`} 
+      alt={game.name} 
+      style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover', flexShrink: 0 }} 
+      onError={() => setError(true)} 
+    />
+  );
+}
+
 function HeaderContent({ toggleSidebar }: { toggleSidebar: () => void }) {
   const { lang, setLang, t } = useLanguage();
   const router = useRouter();
@@ -118,8 +144,7 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar: () => void }) {
                          setSearchQuery("");
                          router.push(`/order/${game.id}`);
                        }}>
-                    <img src={`/img/${game.id}.jpg`} alt={game.name} style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'cover' }} 
-                         onError={(e) => { (e.target as HTMLImageElement).src = 'https://placehold.co/100x100?text=GAME' }} />
+                    <GameIcon game={game} />
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
                       <span style={{ fontWeight: 600, fontSize: '14px', color: '#fff', lineHeight: '1.2' }}>{game.name}</span>
                       <span style={{ fontSize: '12px', color: 'var(--text-dim)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{game.category}</span>
