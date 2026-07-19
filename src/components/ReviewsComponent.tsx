@@ -146,7 +146,10 @@ export default function ReviewsComponent({ gameId, products }: { gameId?: string
       <div className="rating-bars">
         {[
           { stars: 5, count: count5 },
-          { stars: 4, count: count4 }
+          { stars: 4, count: count4 },
+          { stars: 3, count: count3 },
+          { stars: 2, count: count2 },
+          { stars: 1, count: count1 }
         ].map((bar) => {
           const widthPercent = totalReviews > 0 ? (bar.count / totalReviews) * 100 : 0;
           return (
