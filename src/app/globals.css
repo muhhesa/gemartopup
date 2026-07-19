@@ -398,3 +398,72 @@ button {
 .status-badge-small.awaiting_payment { background-color: rgba(255, 145, 0, 0.1); color: var(--primary-color); }
 .status-badge-small.failed, .status-badge-small.expired { background-color: rgba(255, 23, 68, 0.1); color: var(--danger); }
 
+
+/* Purchase Popup Notifications */
+.purchase-popup {
+  position: fixed;
+  bottom: 24px;
+  left: -400px; /* Start off-screen */
+  width: 320px;
+  background-color: var(--surface-1);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  transition: left 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.purchase-popup.visible {
+  left: 24px;
+}
+.popup-icon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--primary-color), #ff4500);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 18px;
+  color: #fff;
+  flex-shrink: 0;
+  box-shadow: 0 0 10px rgba(255, 145, 0, 0.3);
+}
+.popup-content {
+  flex: 1;
+  overflow: hidden;
+}
+.popup-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.popup-desc {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.popup-footer {
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.5);
+  display: flex;
+  align-items: center;
+}
+@media (max-width: 768px) {
+  .purchase-popup {
+    bottom: 80px; /* Above WA fab */
+    width: 280px;
+  }
+}
+

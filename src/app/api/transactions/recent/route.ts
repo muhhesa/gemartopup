@@ -21,7 +21,7 @@ export async function GET() {
     // Ambil 15 transaksi terakhir
     const { data, error } = await supabaseAdmin
       .from("orders")
-      .select("created_at, invoice_id, package_name, price, status")
+      .select("created_at, invoice_id, package_name, price, status, target_id")
       .order("created_at", { ascending: false })
       .limit(15);
 
@@ -29,7 +29,7 @@ export async function GET() {
       throw error;
     }
 
-    // SENSOR OTOMATIS: Masking nomor invoice (misal: INV-MLBB-123456 -> INV-MLBB-12***56)
+    // SENSOR OTOMATIS: Masking nomor invoice dan target_id
     const safeData = data.map((order: any) => {
       let maskedInvoice = order.invoice_id;
       if (maskedInvoice && maskedInvoice.length > 8) {
@@ -38,9 +38,20 @@ export async function GET() {
         maskedInvoice = `${prefix}***${suffix}`;
       }
 
+      let maskedTarget = order.target_id;
+      if (maskedTarget && maskedTarget.length >= 5) {
+        // Mask the middle of target ID. e.g. 12345678 -> 12***78
+        const prefix = maskedTarget.substring(0, Math.max(2, Math.floor(maskedTarget.length / 3)));
+        const suffix = maskedTarget.substring(maskedTarget.length - 2);
+        maskedTarget = `${prefix}***${suffix}`;
+      } else {
+        maskedTarget = "***";
+      }
+
       return {
         ...order,
-        invoice_id: maskedInvoice
+        invoice_id: maskedInvoice,
+        target_id: maskedTarget
       };
     });
 
