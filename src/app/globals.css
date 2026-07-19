@@ -158,6 +158,58 @@ button {
   align-items: center;
 }
 
+.header-search-container {
+  display: flex;
+  align-items: center;
+  background-color: #111;
+  border: 1px solid #333;
+  border-radius: 24px;
+  padding: 8px 16px;
+  width: 400px;
+  max-width: 40vw;
+  gap: 12px;
+  transition: border-color 0.2s;
+}
+
+.header-search-container:focus-within {
+  border-color: var(--primary-color);
+}
+
+.header-search-input {
+  background: transparent;
+  border: none;
+  color: var(--text-main);
+  font-size: 14px;
+  flex: 1;
+  outline: none;
+}
+
+.header-search-input::placeholder {
+  color: var(--text-dim);
+}
+
+.header-search-icon {
+  color: var(--text-dim);
+  width: 16px;
+  height: 16px;
+}
+
+.header-search-shortcut {
+  font-size: 10px;
+  color: var(--text-dim);
+  border: 1px solid #444;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 768px) {
+  .header-search-container {
+    display: none;
+  }
+}
+
 .logo {
   display: flex;
   align-items: center;

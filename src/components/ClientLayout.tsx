@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { LanguageProvider, useLanguage } from "@/context/LanguageContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import RecentPurchasePopup from "./RecentPurchasePopup";
 
@@ -36,6 +36,17 @@ function Sidebar({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) 
 function HeaderContent({ toggleSidebar }: { toggleSidebar: () => void }) {
   const { lang, setLang, t } = useLanguage();
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        document.getElementById('header-search')?.focus();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   return (
     <header className="main-header">
       <div className="container header-content">
@@ -46,6 +57,16 @@ function HeaderContent({ toggleSidebar }: { toggleSidebar: () => void }) {
             <span className="logo-text">GEMARTOPUP</span>
           </Link>
         </div>
+        
+        <div className="header-search-container">
+          <svg className="header-search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+          <input type="text" id="header-search" className="header-search-input" placeholder="Cari game favoritmu..." autoComplete="off" />
+          <div className="header-search-shortcut">CTRL K</div>
+        </div>
+
         <nav className="nav-links">
           <div className="lang-toggle" style={{display: 'flex', gap: '8px', cursor: 'pointer', color: 'var(--text-dim)', fontSize: '12px'}}>
             <span 
