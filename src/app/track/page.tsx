@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useLanguage } from "@/context/LanguageContext";
 
@@ -16,6 +16,26 @@ export default function TrackPage() {
     }
     router.push(`/invoice/${invoiceId}`);
   };
+
+  const [recentTransactions, setRecentTransactions] = useState<any[]>([]);
+
+  useEffect(() => {
+    const fetchRecent = async () => {
+      try {
+        const res = await fetch('/api/transactions/recent');
+        const result = await res.json();
+        if (result.success) {
+          setRecentTransactions(result.data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch recent transactions");
+      }
+    };
+    
+    fetchRecent();
+    const interval = setInterval(fetchRecent, 10000); // refresh every 10 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <div className="container">
@@ -46,6 +66,57 @@ export default function TrackPage() {
           >
             {t("track.button")}
           </button>
+        </div>
+      </div>
+
+      <div className="terminal-box" style={{ maxWidth: '900px', margin: '40px auto 0' }}>
+        <div className="section-header" style={{ textAlign: 'center', marginBottom: '8px' }}>
+          <h2>Transaksi Terkini</h2>
+        </div>
+        <p style={{ color: 'var(--text-dim)', textAlign: 'center', marginBottom: '24px', fontSize: '13px' }}>
+          Berikut adalah pesanan terbaru yang masuk secara real-time.
+        </p>
+
+        <div className="table-responsive">
+          <table className="modern-table">
+            <thead>
+              <tr>
+                <th>Tanggal</th>
+                <th>Nomor Invoice</th>
+                <th>Layanan</th>
+                <th>Harga</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentTransactions.map((tx, idx) => (
+                <tr key={idx}>
+                  <td>
+                    {new Date(tx.created_at).toLocaleString('id-ID', {
+                      day: '2-digit', month: '2-digit', year: 'numeric',
+                      hour: '2-digit', minute: '2-digit', second: '2-digit'
+                    }).replace(/\./g, ':')}
+                  </td>
+                  <td style={{ fontFamily: 'monospace' }}>{tx.invoice_id}</td>
+                  <td>{tx.package_name}</td>
+                  <td>IDR {tx.price.toLocaleString('id-ID')}</td>
+                  <td>
+                    <span className={`status-badge-small ${tx.status.toLowerCase()}`}>
+                      {tx.status === 'SUCCESS' ? 'Sukses' : 
+                       tx.status === 'AWAITING_PAYMENT' ? 'Unpaid' : 
+                       tx.status === 'PROCESS' ? 'Proses' : 
+                       tx.status === 'FAILED' || tx.status === 'EXPIRED' ? 'Gagal' : tx.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+              {recentTransactions.length === 0 && (
+                <tr>
+                  <td colSpan={5} style={{ textAlign: 'center', padding: '24px' }}>Belum ada transaksi</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

@@ -351,3 +351,50 @@ button {
     height: 24px;
   }
 }
+
+/* Table Styles */
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  border-radius: 8px;
+  background-color: var(--surface-1);
+}
+.modern-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  color: var(--text-main);
+}
+.modern-table th, .modern-table td {
+  padding: 16px;
+  text-align: left;
+  border-bottom: 1px solid var(--border-color);
+}
+.modern-table th {
+  background-color: var(--surface-2);
+  color: var(--text-dim);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 11px;
+}
+.modern-table tbody tr {
+  transition: background-color 0.2s ease;
+}
+.modern-table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.02);
+}
+.status-badge-small {
+  padding: 4px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+.status-badge-small.success { background-color: rgba(0, 230, 118, 0.1); color: var(--success); }
+.status-badge-small.process { background-color: rgba(0, 229, 255, 0.1); color: #00e5ff; }
+.status-badge-small.awaiting_payment { background-color: rgba(255, 145, 0, 0.1); color: var(--primary-color); }
+.status-badge-small.failed, .status-badge-small.expired { background-color: rgba(255, 23, 68, 0.1); color: var(--danger); }
+
