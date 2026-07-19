@@ -17,6 +17,12 @@ export default function InvoicePage() {
   const [status, setStatus] = useState("AWAITING_PAYMENT");
   const [invoiceData, setInvoiceData] = useState<any>(null);
   
+  // Review Modal States
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
+  const [reviewRating, setReviewRating] = useState<number>(5);
+  const [reviewComment, setReviewComment] = useState<string>("");
+  const [isReviewSubmitted, setIsReviewSubmitted] = useState<boolean>(false);
+  
   const ADMIN_WHATSAPP = "628115234943";
 
   useEffect(() => {
@@ -128,6 +134,10 @@ export default function InvoicePage() {
     let message = "";
     if (status === "AWAITING_PAYMENT") {
       message = `Halo Admin Gemartopup,%0A%0ASaya sudah melakukan pembayaran untuk pesanan:%0A*ID Invoice:* ${invoiceId}%0A*Target ID:* ${invoiceData?.targetId}%0A*Item:* ${invoiceData?.packageName}%0A*Total:* IDR ${invoiceData?.total.toLocaleString('id-ID')}%0A%0ABerikut saya lampirkan bukti transfernya:`;
+    } else if (status === "SUCCESS") {
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+      const reviewLink = `${baseUrl}/review/${invoiceId}`;
+      message = `Halo Admin Gemartopup,%0A%0APesanan saya dengan ID Invoice *${invoiceId}* sudah masuk, terima kasih!%0A%0AAdmin Note: (Kirim pesan ini ke pelanggan) "Terima kasih telah berbelanja di Gemartopup! Jangan lupa berikan ulasan Anda melalui link berikut: ${reviewLink}"`;
     } else {
       message = `Halo Admin Gemartopup,%0A%0ASaya ingin konfirmasi pesanan:%0A*ID Invoice:* ${invoiceId}%0A*Status:* ${getStatusLabel(status)}%0A*Target ID:* ${invoiceData?.targetId}%0A*Item:* ${invoiceData?.packageName}%0A*Total:* IDR ${invoiceData?.total.toLocaleString('id-ID')}%0A%0AMohon bantuannya, terima kasih!`;
     }
@@ -278,10 +288,24 @@ export default function InvoicePage() {
             )}
 
             {status === "SUCCESS" && (
-              <div className="status-box success">
+              <div className="status-box success" style={{ position: 'relative' }}>
                 <div className="status-icon">✓</div>
                 <h3>{t("status.success")}</h3>
-                <p>Pesanan telah berhasil dikirim ke akun Anda!</p>
+                <p style={{ marginBottom: '16px' }}>Pesanan telah berhasil dikirim ke akun Anda!</p>
+                
+                {!isReviewSubmitted ? (
+                  <button 
+                    className="btn-primary" 
+                    style={{ padding: '8px 16px', fontSize: '12px' }}
+                    onClick={() => setIsReviewModalOpen(true)}
+                  >
+                    ⭐ Beri Ulasan
+                  </button>
+                ) : (
+                  <div style={{ color: 'var(--success)', fontSize: '12px', fontWeight: 'bold' }}>
+                    ✓ Ulasan telah dikirim
+                  </div>
+                )}
               </div>
             )}
 
@@ -326,6 +350,86 @@ export default function InvoicePage() {
           </div>
         </div>
       </div>
+
+      {/* REVIEW MODAL */}
+      {isReviewModalOpen && (
+        <div style={{
+          position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, 
+          backgroundColor: 'rgba(0,0,0,0.8)', zIndex: 999,
+          display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
+        }}>
+          <div className="terminal-box" style={{ 
+            width: '100%', maxWidth: '400px', backgroundColor: '#0a0a0a', 
+            border: '1px solid var(--primary-color)', padding: '24px', position: 'relative' 
+          }}>
+            <button 
+              onClick={() => setIsReviewModalOpen(false)}
+              style={{ position: 'absolute', top: '16px', right: '16px', background: 'transparent', border: 'none', color: '#fff', fontSize: '20px', cursor: 'pointer' }}
+            >
+              ✕
+            </button>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: '16px', color: 'var(--primary-color)' }}>BERIKAN ULASAN</h3>
+            <p style={{ fontSize: '14px', color: 'var(--text-dim)', marginBottom: '16px' }}>
+              Bagaimana pengalaman Anda membeli <strong>{invoiceData?.packageName}</strong>?
+            </p>
+            
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', justifyContent: 'center' }}>
+              {[1, 2, 3, 4, 5].map((star) => (
+                <svg 
+                  key={star}
+                  onClick={() => setReviewRating(star)}
+                  style={{ cursor: 'pointer', transition: 'transform 0.1s' }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.2)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 24 24" 
+                  width="36" 
+                  height="36" 
+                  fill={star <= reviewRating ? "var(--primary-color)" : "transparent"} 
+                  stroke={star <= reviewRating ? "var(--primary-color)" : "#555"}
+                  strokeWidth="2"
+                >
+                  <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                </svg>
+              ))}
+            </div>
+            
+            <textarea 
+              className="input-field"
+              style={{ width: '100%', minHeight: '80px', marginBottom: '16px' }}
+              placeholder="Tulis ulasan Anda di sini..."
+              value={reviewComment}
+              onChange={(e) => setReviewComment(e.target.value)}
+            ></textarea>
+            
+            <button 
+              className="btn-primary" 
+              style={{ width: '100%' }}
+              onClick={() => {
+                const gameId = invoiceData?.gameId;
+                if (!gameId) return;
+                
+                const reviews = JSON.parse(localStorage.getItem(`gemartopup_reviews_${gameId}`) || "[]");
+                const newReview = {
+                  id: `rev-${Date.now()}`,
+                  name: "628" + Math.floor(1000000 + Math.random() * 9000000) + "***",
+                  item: invoiceData.packageName,
+                  date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+                  rating: reviewRating,
+                  comment: reviewComment || "Sangat puas dengan layanannya"
+                };
+                
+                reviews.unshift(newReview);
+                localStorage.setItem(`gemartopup_reviews_${gameId}`, JSON.stringify(reviews));
+                setIsReviewSubmitted(true);
+                setIsReviewModalOpen(false);
+              }}
+            >
+              KIRIM ULASAN
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
