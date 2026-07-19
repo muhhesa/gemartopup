@@ -406,8 +406,7 @@ export default function InvoicePage() {
               className="btn-primary" 
               style={{ width: '100%' }}
               onClick={() => {
-                const gameId = invoiceData?.gameId;
-                if (!gameId) return;
+                const gameId = invoiceData?.gameId || "general"; // Fallback to 'general' if gameId is missing in old data
                 
                 const reviews = JSON.parse(localStorage.getItem(`gemartopup_reviews_${gameId}`) || "[]");
                 const newReview = {

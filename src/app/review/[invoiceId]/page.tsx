@@ -33,11 +33,7 @@ export default function ReviewPage() {
   }, []);
 
   const handleSubmit = () => {
-    const gameId = invoiceData?.gameId;
-    if (!gameId) {
-      setError("Data game tidak ditemukan.");
-      return;
-    }
+    const gameId = invoiceData?.gameId || "general";
 
     const reviews = JSON.parse(localStorage.getItem(`gemartopup_reviews_${gameId}`) || "[]");
     const newReview = {
