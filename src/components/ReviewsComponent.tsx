@@ -12,50 +12,33 @@ interface Review {
   comment: string;
 }
 
-const MOCK_REVIEWS: Review[] = [
-  {
-    id: "rev1",
-    name: "6281****72795",
-    item: "Weekly Diamond Pass (Global)",
-    date: "18 Jul 2026",
-    rating: 5,
-    comment: "Sangat puas"
-  },
-  {
-    id: "rev2",
-    name: "Jo****nid",
-    item: "15 (15+0) Diamond",
-    date: "13 Jul 2026",
-    rating: 5,
-    comment: "Harga murah"
-  },
-  {
-    id: "rev3",
-    name: "6285****41314",
-    item: "Weekly Diamond Pass 5x",
-    date: "11 Jul 2026",
-    rating: 5,
-    comment: "Proses cepat"
-  },
-  {
-    id: "rev4",
-    name: "Jo****nid",
-    item: "50 (45+5) Diamond",
-    date: "01 Jul 2026",
-    rating: 5,
-    comment: "Proses cepat"
-  },
-  {
-    id: "rev5",
-    name: "Jo****nid",
-    item: "1.050 (937+113) Diamonds (Global)",
-    date: "29 Jun 2026",
-    rating: 5,
-    comment: "Proses cepat"
+const generateMockReviews = (products: any[]): Review[] => {
+  if (!products || products.length === 0) return [];
+  
+  // Use a predictable seed based on products to ensure same products = same reviews
+  const comments = ["Sangat puas", "Harga murah", "Proses cepat", "Mantap", "Gampang banget", "Auto sultan", "Top up langganan di sini"];
+  const dates = ["18 Jul 2026", "13 Jul 2026", "11 Jul 2026", "01 Jul 2026", "29 Jun 2026", "15 Jun 2026", "02 Jun 2026"];
+  const names = ["6281****72795", "Jo****nid", "6285****41314", "Ah****oy", "De****s", "6282****99999", "Ri****ki"];
+  
+  const reviews: Review[] = [];
+  // generate 5 reviews
+  for (let i = 0; i < 5; i++) {
+    const product = products[i % products.length];
+    reviews.push({
+      id: `rev${i}`,
+      name: names[i % names.length],
+      item: product.name,
+      date: dates[i % dates.length],
+      rating: 5,
+      comment: comments[i % comments.length]
+    });
   }
-];
+  return reviews;
+};
 
-export default function ReviewsComponent() {
+export default function ReviewsComponent({ products }: { products?: any[] }) {
+  const reviews = products && products.length > 0 ? generateMockReviews(products) : [];
+  
   return (
     <section className="terminal-box mb-4 reviews-section">
       <div className="reviews-header">
@@ -98,10 +81,10 @@ export default function ReviewsComponent() {
       </div>
 
       <div className="reviews-list">
-        {MOCK_REVIEWS.map((review) => (
-          <div className="review-card" key={review.id}>
+        {reviews.length > 0 ? reviews.map(rev => (
+          <div className="review-card" key={rev.id}>
             <div className="review-top">
-              <div className="reviewer-name">{review.name}</div>
+              <div className="reviewer-name">{rev.name}</div>
               <div className="review-stars">
                 {[...Array(5)].map((_, i) => (
                   <svg 
@@ -109,8 +92,8 @@ export default function ReviewsComponent() {
                     viewBox="0 0 24 24" 
                     width="14" 
                     height="14" 
-                    fill={i < review.rating ? "var(--primary-color)" : "transparent"} 
-                    stroke={i < review.rating ? "var(--primary-color)" : "#555"}
+                    fill={i < rev.rating ? "var(--primary-color)" : "transparent"} 
+                    stroke={i < rev.rating ? "var(--primary-color)" : "#555"}
                     strokeWidth="2"
                     style={{ marginRight: '2px' }}
                   >
@@ -120,14 +103,16 @@ export default function ReviewsComponent() {
               </div>
             </div>
             <div className="review-meta">
-              <span className="review-item">{review.item}</span>
-              <span className="review-date">{review.date}</span>
+              <span className="review-item">{rev.item}</span>
+              <span className="review-date">{rev.date}</span>
             </div>
-            <div className="review-comment">
-              {review.comment}
-            </div>
+            <p className="review-comment">{rev.comment}</p>
           </div>
-        ))}
+        )) : (
+          <div style={{ padding: '20px', textAlign: 'center', color: 'var(--text-dim)', fontSize: '14px' }}>
+            Belum ada ulasan untuk layanan ini.
+          </div>
+        )}
       </div>
     </section>
   );

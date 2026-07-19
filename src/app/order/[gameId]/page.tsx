@@ -173,7 +173,7 @@ export default function OrderPage() {
 
       <div className="order-grid">
         <aside className="order-left-sidebar">
-          <ReviewsComponent />
+          <ReviewsComponent products={nominalsList} />
         </aside>
 
         <div className="order-main">
