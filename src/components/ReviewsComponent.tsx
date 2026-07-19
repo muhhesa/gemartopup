@@ -90,14 +90,14 @@ export default function ReviewsComponent({ gameId, products }: { gameId?: string
     }
   }, [gameId, products]);
 
-  // Use a mathematically correct and realistic baseline distribution
-  // 40*5 + 4*4 + 1*3 + 1*2 = 221. 221 / 46 = 4.804 (4.8). 
-  // Satisfied = (40+4)/46 = 95.6% (96%).
-  const baseReviewsCount = 46; 
+  // Use a mathematically correct and realistic baseline distribution without 1, 2, or 3 stars
+  // 40*5 + 10*4 = 200 + 40 = 240. 240 / 50 = 4.8.
+  // Satisfied (4 and 5 stars) = 50 / 50 = 100%.
+  const baseReviewsCount = 50; 
   const base5StarCount = 40;
-  const base4StarCount = 4;
-  const base3StarCount = 1;
-  const base2StarCount = 1;
+  const base4StarCount = 10;
+  const base3StarCount = 0;
+  const base2StarCount = 0;
   const base1StarCount = 0;
   
   // Count real reviews added by user
