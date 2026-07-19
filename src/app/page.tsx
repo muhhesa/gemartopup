@@ -8,8 +8,7 @@ import { useState } from "react";
 
 import catalogData from "@/data/catalog.json";
 const GAMES = catalogData.games;
-
-const POPULAR_GAME_IDS = ['mlbb', 'ff', 'pubg', 'valo'];
+const POPULAR_GAME_IDS = ['mlbb', 'ff', 'pubg', 'valo', 'point-blank', 'pulsa-telkomsel'];
 const TRENDING_GAME_IDS = ['mlbb', 'ff', 'pubg', 'valo', 'point-blank'];
 
 const popularGames = POPULAR_GAME_IDS.map(id => GAMES.find(g => g.id === id)).filter(Boolean) as typeof GAMES;
