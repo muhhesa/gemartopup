@@ -81,19 +81,17 @@ export async function POST(req: Request) {
 
     // 8. Kirim Notifikasi Telegram
     try {
-      const message = `
-🚨 *PESANAN BARU MASUK!* 🚨
+      const message = `🚨 <b>PESANAN BARU MASUK!</b> 🚨
 
-*Invoice:* \`${invoiceId}\`
-*Status:* ⏳ Menunggu Pembayaran
-*Item:* ${packageName}
-*Target ID:* \`${targetId}\` ${nickname ? `(${nickname})` : ''}
-*WA Pelanggan:* ${whatsapp ? `[${whatsapp}](https://wa.me/${whatsapp})` : '-'}
-*Metode Bayar:* ${paymentMethod}
-*Total Tagihan:* *Rp ${Number(totalPrice).toLocaleString('id-ID')}*
+<b>Invoice:</b> <code>${invoiceId}</code>
+<b>Status:</b> ⏳ Menunggu Pembayaran
+<b>Item:</b> ${packageName}
+<b>Target ID:</b> <code>${targetId}</code> ${nickname ? `(${nickname})` : ''}
+<b>WA Pelanggan:</b> ${whatsapp ? `<a href="https://wa.me/${whatsapp}">${whatsapp}</a>` : '-'}
+<b>Metode Bayar:</b> ${paymentMethod}
+<b>Total Tagihan:</b> <b>Rp ${Number(totalPrice).toLocaleString('id-ID')}</b>
 
-[Lihat Dashboard Admin](https://gemartopup.vercel.app/admin)
-`;
+<a href="https://gemartopup.vercel.app/admin">Lihat Dashboard Admin</a>`;
       await sendTelegramNotification(message);
     } catch (notifyErr) {
       console.error('Failed to send notification:', notifyErr);
