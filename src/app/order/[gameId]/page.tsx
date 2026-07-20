@@ -159,7 +159,7 @@ export default function OrderPage() {
       router.push(`/invoice/${result.invoiceId}`);
     } catch (err) {
       console.error(err);
-      alert("Sistem sedang sibuk. Coba lagi.");
+      alert(t("order.error_busy"));
     }
   };
 
@@ -176,10 +176,10 @@ export default function OrderPage() {
       }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <h1 style={{ display: 'flex', alignItems: 'center', margin: 0 }}>
-            LAYANAN : {game.name}
+            {t("order.service_prefix")} {game.name}
           </h1>
           <span style={{ fontSize: '12px', color: '#888', marginTop: '6px', letterSpacing: '2px', textTransform: 'uppercase' }}>
-            OFFICIAL GAME STORE
+            {t("order.store_subtitle")}
           </span>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center' }}>
@@ -219,7 +219,7 @@ export default function OrderPage() {
                 <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor">
                   <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/>
                 </svg>
-                Petunjuk
+                {t("order.guide")}
               </button>
             </div>
             <div className="input-group">
@@ -237,7 +237,7 @@ export default function OrderPage() {
                         border: '1px solid var(--border-color)' 
                       }}
                     >
-                      <option value="">-- Pilih --</option>
+                      <option value="">{t("order.select")}</option>
                       {field.options.map(opt => (
                         <option key={opt.value} value={opt.value}>{opt.label}</option>
                       ))}
@@ -431,18 +431,18 @@ export default function OrderPage() {
         <div className="modal-overlay" onClick={() => setIsGuideOpen(false)}>
           <div className="modal-content" onClick={e => e.stopPropagation()} style={{ maxWidth: '400px', backgroundColor: '#1a1a1a', border: '1px solid #333' }}>
             <div className="modal-header" style={{ borderBottom: '1px solid #333', paddingBottom: '12px', marginBottom: '16px' }}>
-              <h2 style={{ fontSize: '18px', margin: 0, color: '#fff' }}>Petunjuk Pengisian</h2>
+              <h2 style={{ fontSize: '18px', margin: 0, color: '#fff' }}>{t("order.guide_title")}</h2>
               <button className="close-btn" onClick={() => setIsGuideOpen(false)} style={{ color: '#888' }}>&times;</button>
             </div>
             
             <div style={{ color: '#ccc', fontSize: '14px', lineHeight: '1.5' }}>
 
               <p style={{ marginBottom: '16px', color: '#fff' }}>
-                {config.guideDesc || "Ikuti langkah berikut dengan benar untuk menemukan data akun kamu."}
+                {config.guideDesc || t("order.guide_desc")}
               </p>
               
               <div style={{ padding: '16px', backgroundColor: '#222', borderRadius: '4px', border: '1px solid #333', marginBottom: '20px' }}>
-                <div style={{ fontWeight: 'bold', color: 'var(--primary-color)', marginBottom: '8px' }}>Format:</div>
+                <div style={{ fontWeight: 'bold', color: 'var(--primary-color)', marginBottom: '8px' }}>{t("order.format")}</div>
                 <div>
                   {config.fields.map((f) => f.labelId).join(gameId === 'valo' ? '#' : ' ')}
                 </div>
