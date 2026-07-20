@@ -4,12 +4,13 @@ import Link from "next/link";
 import "./home.css";
 import { useLanguage } from "@/context/LanguageContext";
 import ClockWidget from "@/components/ClockWidget";
+import WelcomeAnimation from "@/components/WelcomeAnimation";
 import { useState } from "react";
 
 import catalogData from "@/data/catalog.json";
 const GAMES = catalogData.games;
 const POPULAR_GAME_IDS = ['mlbb', 'ff', 'pubg', 'valo', 'point-blank', 'pulsa-telkomsel'];
-const TRENDING_GAME_IDS = ['mlbb', 'ff', 'pubg', 'valo', 'point-blank'];
+const TRENDING_GAME_IDS = ['mlbb', 'ff', 'pubg', 'valo', 'genshin'];
 
 const popularGames = POPULAR_GAME_IDS.map(id => GAMES.find(g => g.id === id)).filter(Boolean) as typeof GAMES;
 const trendingGames = TRENDING_GAME_IDS.map(id => GAMES.find(g => g.id === id)).filter(Boolean) as typeof GAMES;
@@ -27,7 +28,7 @@ export default function Home() {
       <div className="hero-container">
         <div className="hero-section terminal-box" style={{ flex: 1, marginBottom: 0 }}>
           <h1 className="hero-title">
-            <span className="cursor-block">█</span> {t("home.welcome")}
+            <span className="cursor-block">█</span> <WelcomeAnimation text={t("home.welcome")} />
           </h1>
           <p className="hero-subtitle">
             {t("home.subtitle1")}
