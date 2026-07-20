@@ -17,9 +17,8 @@ const WelcomeAnimation = ({ text }: { text: string }) => {
     setShowCart(false);
     letterRefs.current = letterRefs.current.slice(0, text.length);
     
-    let current = 0;
-    let direction = 1;
-    let interval: NodeJS.Timeout;
+    let interval: NodeJS.Timeout | null = null;
+    const timeouts: NodeJS.Timeout[] = [];
     
     const startCycle = () => {
       current = 0;
@@ -29,6 +28,7 @@ const WelcomeAnimation = ({ text }: { text: string }) => {
       setCartScaleX(1);
       setShowCart(true);
       
+      if (interval) clearInterval(interval);
       interval = setInterval(() => {
         if (direction === 1) {
           // Eating (moving right)
@@ -61,20 +61,20 @@ const WelcomeAnimation = ({ text }: { text: string }) => {
           } else {
             // Reached the start, stop at 0 and fade out
             setCartX(0);
-            setTimeout(() => setShowCart(false), 300);
-            clearInterval(interval);
+            timeouts.push(setTimeout(() => setShowCart(false), 300));
+            if (interval) clearInterval(interval);
             
             // Wait before restarting
-            setTimeout(startCycle, 2500);
+            timeouts.push(setTimeout(startCycle, 2500));
           }
         }
       }, 150);
     };
 
-    const initialTimeout = setTimeout(startCycle, 1500);
+    timeouts.push(setTimeout(startCycle, 1500));
     
     return () => {
-      clearTimeout(initialTimeout);
+      timeouts.forEach(clearTimeout);
       if (interval) clearInterval(interval);
     };
   }, [text]);
