@@ -6,22 +6,19 @@ import math
 excel_file = 'BISNIS_GEMARTOPUP_ANALISIS.xlsx'
 xl = pd.ExcelFile(excel_file)
 
-games = []
-products = {}
+games_dict = {}
+products_dict = {}
 
 def get_category_and_zone(name):
     name_lower = name.lower()
-    
-    # Category
-    if any(x in name_lower for x in ['pulsa', 'pln', 'indosat', 'xl', 'axis', 'tri', 'smartfren', 'byu']):
+    if any(x in name_lower for x in ['pulsa', 'pln', 'indosat', 'xl', 'axis', 'tri', 'smartfren', 'byu', 'telkomsel']):
         category = 'pulsa'
-    elif any(x in name_lower for x in ['voucher', 'google play', 'steam', 'itunes', 'nintendo', 'spotify', 'vidio', 'xbox']):
+    elif any(x in name_lower for x in ['voucher', 'google play', 'steam', 'itunes', 'nintendo', 'spotify', 'vidio', 'xbox', 'hotelmurah']):
         category = 'voucher'
     else:
         category = 'game'
         
-    # Has Zone
-    if any(x in name_lower for x in ['mlbb', 'mobile legend', 'genshin', 'honkai', 'gi', 'hsr', 'ragnarok']):
+    if any(x in name_lower for x in ['mlbb', 'mobile legend', 'genshin', 'honkai', 'gi', 'hsr', 'ragnarok', 'aov', 'call of duty']):
         has_zone = True
     else:
         has_zone = False
@@ -29,74 +26,76 @@ def get_category_and_zone(name):
     return category, has_zone
 
 for sheet in xl.sheet_names:
-    if 'INDOFLAZ' in sheet.upper():
-        game_name = sheet.upper().replace('INDOFLAZZ', '').replace('INDOFLAZ', '').strip()
-        if not game_name:
-            continue
+    if sheet in ['Dashboard', 'Analisis Detail', 'Catatan & Asumsi', 'Gontak Whatsapp dan SMS Gateway']:
+        continue
+        
+    df = pd.read_excel(excel_file, sheet_name=sheet)
+    if 'LAYANAN' not in df.columns or 'HARGA SILVER' not in df.columns:
+        continue
+
+    # Extract base game name by removing provider names
+    game_name = sheet.upper()
+    providers = ['INDOFLAZZ', 'INDOFLAZ', 'INDOLAZ', 'IND', 'OURA STORE', 'OURASTORE', 'OUR', 'EMPESHOP', 'EMPE SHOP']
+    for p in providers:
+        if game_name.endswith(p):
+            game_name = game_name[:-len(p)].strip()
+            break
             
-        game_id = game_name.lower().replace(' ', '-').replace(':', '').replace('.', '')
+    if not game_name:
+        continue
         
+    game_id = game_name.lower().replace(' ', '-').replace(':', '').replace('.', '')
+    
+    if game_id not in games_dict:
         category, has_zone = get_category_and_zone(game_name)
-        
-        games.append({
+        games_dict[game_id] = {
             "id": game_id,
             "name": game_name,
             "code": game_name.upper(),
             "status": "ACTIVE",
             "category": category,
             "hasZone": has_zone
-        })
-        
-        df = pd.read_excel(excel_file, sheet_name=sheet)
-        
-        sheet_products = []
-        # Ensure it has LAYANAN and HARGA SILVER
-        if 'LAYANAN' in df.columns and 'HARGA SILVER' in df.columns:
-            has_pid = 'PID' in df.columns
-            
-            unique_products = {}
-            for idx, row in df.iterrows():
-                try:
-                    product_name = str(row['LAYANAN'])
-                    
-                    if pd.isna(row['HARGA SILVER']):
-                        continue
-                    
-                    # Filter out anomalous 5 Diamond
-                    if product_name.strip() == '5 Diamond' and game_id not in ['mlbb', 'ff', 'free-fire']:
-                        continue
-                        
-                    price_str = str(row['HARGA SILVER']).replace('Rp. ', '').replace('.', '').strip()
-                    if not price_str or price_str == 'nan':
-                        continue
-                    price = int(price_str)
-                    
-                    if product_name not in unique_products:
-                        unique_products[product_name] = price
-                    else:
-                        if price < unique_products[product_name]:
-                            unique_products[product_name] = price
-                except Exception as e:
-                    pass
-            
-            p_id = 1
-            for p_name, p_price in unique_products.items():
-                badge = None
-                if 'pass' in p_name.lower() or 'weekly' in p_name.lower():
-                    badge = 'promo'
-                
-                sheet_products.append({
-                    "id": p_id,
-                    "name": p_name,
-                    "price": p_price,
-                    "badge": badge
-                })
-                p_id += 1
-        
-        products[game_id] = sheet_products
+        }
+        products_dict[game_id] = {}
 
-# Sort games alphabetically by name
+    for idx, row in df.iterrows():
+        try:
+            product_name = str(row['LAYANAN'])
+            if pd.isna(row['HARGA SILVER']) or not product_name or product_name == 'nan':
+                continue
+            
+            price_str = str(row['HARGA SILVER']).replace('Rp', '').replace('.', '').replace(',', '').strip()
+            if not price_str or price_str == 'nan':
+                continue
+            price = int(price_str)
+            
+            if product_name not in products_dict[game_id]:
+                products_dict[game_id][product_name] = price
+            else:
+                if price < products_dict[game_id][product_name]:
+                    products_dict[game_id][product_name] = price
+        except Exception as e:
+            pass
+
+games = list(games_dict.values())
 games.sort(key=lambda x: x["name"])
+
+products = {}
+for gid, prods in products_dict.items():
+    sheet_products = []
+    p_id = 1
+    for p_name, p_price in prods.items():
+        badge = None
+        if 'pass' in p_name.lower() or 'weekly' in p_name.lower():
+            badge = 'promo'
+        sheet_products.append({
+            "id": p_id,
+            "name": p_name,
+            "price": p_price,
+            "badge": badge
+        })
+        p_id += 1
+    products[gid] = sheet_products
 
 catalog = {
     "games": games,

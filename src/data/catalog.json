@@ -6,7 +6,7 @@
       "code": "AOV",
       "status": "ACTIVE",
       "category": "game",
-      "hasZone": false
+      "hasZone": true
     },
     {
       "id": "axis",
@@ -30,7 +30,7 @@
       "code": "CALL OF DUTY MOBILE",
       "status": "ACTIVE",
       "category": "game",
-      "hasZone": false
+      "hasZone": true
     },
     {
       "id": "ff",
@@ -65,12 +65,28 @@
       "hasZone": false
     },
     {
+      "id": "harry-potter-magic-awakened",
+      "name": "HARRY POTTER MAGIC AWAKENED",
+      "code": "HARRY POTTER MAGIC AWAKENED",
+      "status": "ACTIVE",
+      "category": "game",
+      "hasZone": true
+    },
+    {
       "id": "honkai--star-rail",
       "name": "HONKAI  STAR RAIL",
       "code": "HONKAI  STAR RAIL",
       "status": "ACTIVE",
       "category": "game",
       "hasZone": true
+    },
+    {
+      "id": "hotelmurah",
+      "name": "HOTELMURAH",
+      "code": "HOTELMURAH",
+      "status": "ACTIVE",
+      "category": "voucher",
+      "hasZone": false
     },
     {
       "id": "indosat",
@@ -89,12 +105,28 @@
       "hasZone": false
     },
     {
+      "id": "league-of-legend-wild-drift",
+      "name": "LEAGUE OF LEGEND WILD DRIFT",
+      "code": "LEAGUE OF LEGEND WILD DRIFT",
+      "status": "ACTIVE",
+      "category": "game",
+      "hasZone": false
+    },
+    {
       "id": "mlbb",
       "name": "MLBB",
       "code": "MLBB",
       "status": "ACTIVE",
       "category": "game",
       "hasZone": true
+    },
+    {
+      "id": "nintendo-eshop",
+      "name": "NINTENDO ESHOP",
+      "code": "NINTENDO ESHOP",
+      "status": "ACTIVE",
+      "category": "voucher",
+      "hasZone": false
     },
     {
       "id": "pln",
@@ -134,6 +166,14 @@
       "code": "SMARTFREN",
       "status": "ACTIVE",
       "category": "pulsa",
+      "hasZone": false
+    },
+    {
+      "id": "spotify-premium-subscription-vo",
+      "name": "SPOTIFY PREMIUM SUBSCRIPTION VO",
+      "code": "SPOTIFY PREMIUM SUBSCRIPTION VO",
+      "status": "ACTIVE",
+      "category": "voucher",
       "hasZone": false
     },
     {
@@ -264,6 +304,44 @@
         "badge": null
       }
     ],
+    "league-of-legend-wild-drift": [
+      {
+        "id": 1,
+        "name": "425 Cores",
+        "price": 53172,
+        "badge": null
+      },
+      {
+        "id": 2,
+        "name": "1000 Cores",
+        "price": 118687,
+        "badge": null
+      },
+      {
+        "id": 3,
+        "name": "1850 Cores",
+        "price": 213637,
+        "badge": null
+      },
+      {
+        "id": 4,
+        "name": "3275 Cores",
+        "price": 375051,
+        "badge": null
+      },
+      {
+        "id": 5,
+        "name": "4800 Cores",
+        "price": 536466,
+        "badge": null
+      },
+      {
+        "id": 6,
+        "name": "10000 Cores",
+        "price": 1071980,
+        "badge": null
+      }
+    ],
     "aov": [
       {
         "id": 1,
@@ -371,6 +449,14 @@
         "id": 18,
         "name": "9420 Vouchers",
         "price": 1883336,
+        "badge": null
+      }
+    ],
+    "harry-potter-magic-awakened": [
+      {
+        "id": 1,
+        "name": "1980 + 380 Jewels",
+        "price": 365142,
         "badge": null
       }
     ],
@@ -1155,36 +1241,42 @@
     "itunes": [
       {
         "id": 1,
+        "name": "5 Diamond",
+        "price": 1040,
+        "badge": null
+      },
+      {
+        "id": 2,
         "name": "US Region $5",
         "price": 86793,
         "badge": null
       },
       {
-        "id": 2,
+        "id": 3,
         "name": "US Region 10$",
         "price": 173061,
         "badge": null
       },
       {
-        "id": 3,
+        "id": 4,
         "name": "US Region $15",
         "price": 210525,
         "badge": null
       },
       {
-        "id": 4,
+        "id": 5,
         "name": "US Region $25",
         "price": 383300,
         "badge": null
       },
       {
-        "id": 5,
+        "id": 6,
         "name": "US Region $50",
         "price": 780500,
         "badge": null
       },
       {
-        "id": 6,
+        "id": 7,
         "name": "US Region $100",
         "price": 1717965,
         "badge": null
@@ -1237,6 +1329,40 @@
         "id": 8,
         "name": "IDR 600.000 STEAM",
         "price": 594659,
+        "badge": null
+      }
+    ],
+    "spotify-premium-subscription-vo": [
+      {
+        "id": 1,
+        "name": "Spotify Premium Subscription Voucher - 1 Bulan",
+        "price": 56570,
+        "badge": null
+      },
+      {
+        "id": 2,
+        "name": "Spotify Premium Subscription Voucher - 3 Bulan",
+        "price": 165825,
+        "badge": null
+      },
+      {
+        "id": 3,
+        "name": "Spotify Premium Subscription Voucher - 6 Bulan",
+        "price": 303425,
+        "badge": null
+      }
+    ],
+    "nintendo-eshop": [
+      {
+        "id": 1,
+        "name": "Nintendo $10",
+        "price": 137092,
+        "badge": null
+      },
+      {
+        "id": 2,
+        "name": "Nintendo $50",
+        "price": 675332,
         "badge": null
       }
     ],
@@ -1326,6 +1452,38 @@
         "name": "Xbox Game Pass 6 Months",
         "price": 849200,
         "badge": "promo"
+      }
+    ],
+    "hotelmurah": [
+      {
+        "id": 1,
+        "name": "voucher Hotel Hotelmurah 50.000",
+        "price": 41600,
+        "badge": null
+      },
+      {
+        "id": 2,
+        "name": "Voucher Hotel Hotelmurah 100.000",
+        "price": 93600,
+        "badge": null
+      },
+      {
+        "id": 3,
+        "name": "Voucher Hotel Hotelmurah 200.000",
+        "price": 196560,
+        "badge": null
+      },
+      {
+        "id": 4,
+        "name": "Voucher Hotel Hotelmurah 500.000",
+        "price": 504400,
+        "badge": null
+      },
+      {
+        "id": 5,
+        "name": "Voucher Hotel Hotelmurah 1.000.000",
+        "price": 1019200,
+        "badge": null
       }
     ],
     "pln": [
