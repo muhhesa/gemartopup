@@ -1,7 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import crypto from 'crypto';
 import catalogData from "@/data/catalog.json";
 import { sendTelegramNotification } from "@/lib/telegram";
+import { rateLimit, getClientIp } from "@/lib/rateLimit";
 
 // Inisialisasi Supabase menggunakan Service Role Key agar bisa menembus RLS
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
@@ -18,6 +20,17 @@ const PAYMENTS = [
 
 export async function POST(req: Request) {
   try {
+    // Rate limit: 8 pesanan / menit per IP, cukup untuk pemakaian normal
+    // tapi mempersulit spam checkout otomatis.
+    const ip = getClientIp(req);
+    const { allowed, retryAfterMs } = rateLimit(`checkout:${ip}`, 8, 60_000);
+    if (!allowed) {
+      return NextResponse.json(
+        { error: 'Terlalu banyak percobaan checkout. Coba lagi sebentar.' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil(retryAfterMs / 1000)) } }
+      );
+    }
+
     const data = await req.json();
     const { gameId, nominalId, paymentId, targetId, nickname, whatsapp } = data;
 
@@ -56,7 +69,10 @@ export async function POST(req: Request) {
     const paymentMethod = paymentData.name;
 
     // 5. Buat Invoice ID
-    const invoiceId = `INV-${game.code}-${Math.floor(Math.random() * 1000000)}`;
+    // Pakai crypto.randomBytes (bukan Math.random) supaya tidak predictable,
+    // dan panjang token cukup besar (12 karakter hex = 48 bit entropy) supaya
+    // tidak feasible di-brute-force lewat endpoint /api/invoice/[invoiceId].
+    const invoiceId = `INV-${game.code}-${crypto.randomBytes(6).toString('hex').toUpperCase()}`;
 
     // 6. Buat Data Pesanan (Status dipaksa AWAITING_PAYMENT)
     const dbInsertData = {

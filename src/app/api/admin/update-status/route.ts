@@ -1,27 +1,41 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { isAuthenticatedRequest } from '@/lib/adminAuth';
+import { rateLimit, getClientIp } from '@/lib/rateLimit';
 
 export async function POST(request: Request) {
   try {
-    const body = await request.json();
-    const { invoiceId, newStatus, password } = body;
+    const ip = getClientIp(request);
+    const { allowed, retryAfterMs } = rateLimit(`admin-update-status:${ip}`, 60, 60_000);
+    if (!allowed) {
+      return NextResponse.json(
+        { success: false, message: 'Terlalu banyak request. Coba lagi sebentar.' },
+        { status: 429, headers: { 'Retry-After': String(Math.ceil(retryAfterMs / 1000)) } }
+      );
+    }
 
-    const adminPassword = process.env.ADMIN_PASSWORD;
+    // Auth sekarang lewat session cookie httpOnly, bukan password di body lagi.
+    if (!isAuthenticatedRequest(request)) {
+      return NextResponse.json({ success: false, message: "Unauthorized: session tidak valid, silakan login ulang" }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const { invoiceId, newStatus } = body;
+
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    if (!adminPassword || !supabaseUrl || !supabaseServiceKey) {
-      console.error("Server configuration error: missing admin password or supabase keys.");
+    if (!supabaseUrl || !supabaseServiceKey) {
+      console.error("Server configuration error: missing supabase keys.");
       return NextResponse.json({ success: false, message: "Server configuration error" }, { status: 500 });
-    }
-
-    if (password !== adminPassword) {
-      return NextResponse.json({ success: false, message: "Unauthorized: Invalid password" }, { status: 401 });
     }
 
     const VALID_STATUSES = ['AWAITING_PAYMENT', 'PROCESS', 'PENDING', 'SUCCESS', 'FAILED', 'EXPIRED'];
     if (!newStatus || !VALID_STATUSES.includes(newStatus)) {
       return NextResponse.json({ success: false, message: `Status tidak valid. Harus salah satu dari: ${VALID_STATUSES.join(', ')}` }, { status: 400 });
+    }
+    if (!invoiceId || typeof invoiceId !== 'string') {
+      return NextResponse.json({ success: false, message: 'invoiceId wajib diisi' }, { status: 400 });
     }
 
     // Initialize a Supabase client with the SERVICE ROLE KEY (bypasses RLS)

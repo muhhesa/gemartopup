@@ -20,6 +20,7 @@ export default function AdminDashboard() {
       });
       if (res.ok) {
         setIsAuthenticated(true);
+        setPassword(""); // tidak perlu disimpan lagi, sesi berikutnya pakai cookie
         fetchOrders();
       } else {
         alert("Password salah!");
@@ -37,11 +38,14 @@ export default function AdminDashboard() {
       const res = await fetch('/api/admin/orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password })
+        credentials: 'include', // pastikan cookie session ikut terkirim
       });
       const result = await res.json();
 
-      if (!res.ok) throw new Error(result.message || "Failed to load");
+      if (!res.ok) {
+        if (res.status === 401) setIsAuthenticated(false);
+        throw new Error(result.message || "Failed to load");
+      }
       setOrders(result.data || []);
     } catch (err: any) {
       console.error("Error fetching orders:", err.message);
@@ -56,12 +60,16 @@ export default function AdminDashboard() {
       const res = await fetch('/api/admin/update-status', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ invoiceId, newStatus, password })
+        credentials: 'include', // pastikan cookie session ikut terkirim
+        body: JSON.stringify({ invoiceId, newStatus })
       });
       
       const data = await res.json();
       
-      if (!res.ok) throw new Error(data.message || "Failed to update");
+      if (!res.ok) {
+        if (res.status === 401) setIsAuthenticated(false);
+        throw new Error(data.message || "Failed to update");
+      }
       
       // Update local state
       setOrders(orders.map(o => o.invoice_id === invoiceId ? { ...o, status: newStatus } : o));
