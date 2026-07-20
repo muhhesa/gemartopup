@@ -119,18 +119,20 @@ export default function Home() {
           </div>
           
           <aside className="trending-sidebar">
-          <div className="trending-header">TRENDING</div>
-          <div className="trending-list">
-            {trendingGames.map(game => (
-              <Link href={`/order/${game.id}`} key={`trend-${game.id}`} className="trending-item">
-                <div className="trending-icon">{game.name.charAt(0)}</div>
-                <div>
-                  <div className="trending-name">{game.name}</div>
-                  <div className="trending-code">{game.code}</div>
-                </div>
-              </Link>
-            ))}
-          </div>
+            <div className="trending-sticky">
+              <div className="trending-header">TRENDING</div>
+              <div className="trending-list">
+                {trendingGames.map(game => (
+                  <Link href={`/order/${game.id}`} key={`trend-${game.id}`} className="trending-item">
+                    <div className="trending-icon">{game.name.charAt(0)}</div>
+                    <div>
+                      <div className="trending-name">{game.name}</div>
+                      <div className="trending-code">{game.code}</div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
           </aside>
         </div>
       </div>
