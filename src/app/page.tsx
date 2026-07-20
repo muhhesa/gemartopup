@@ -16,7 +16,7 @@ const popularGames = POPULAR_GAME_IDS.map(id => GAMES.find(g => g.id === id)).fi
 const trendingGames = TRENDING_GAME_IDS.map(id => GAMES.find(g => g.id === id)).filter(Boolean) as typeof GAMES;
 
 export default function Home() {
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
   const [activeCategory, setActiveCategory] = useState("all");
 
   const filteredGames = activeCategory === "all" 
@@ -28,7 +28,7 @@ export default function Home() {
       <div className="hero-container">
         <div className="hero-section terminal-box" style={{ flex: 1, marginBottom: 0 }}>
           <h1 className="hero-title">
-            <span className="cursor-block">█</span> <WelcomeAnimation key={t("home.welcome")} text={t("home.welcome")} />
+            <span className="cursor-block">█</span> {lang === 'id' ? <WelcomeAnimation key={t("home.welcome")} text={t("home.welcome")} /> : t("home.welcome")}
           </h1>
           <p className="hero-subtitle">
             {t("home.subtitle1")}
