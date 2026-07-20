@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 
 const WelcomeAnimation = ({ text }: { text: string }) => {
   const letters = text.split('');
@@ -10,26 +10,51 @@ const WelcomeAnimation = ({ text }: { text: string }) => {
   const [showCart, setShowCart] = useState(false);
   const [cartScaleX, setCartScaleX] = useState(1);
 
+  // Use a ref to track the cancelled state so closures always see the latest value
+  const cancelledRef = useRef(false);
+
   useEffect(() => {
-    // Immediately reset state when text changes
+    // Reset everything cleanly
+    cancelledRef.current = false;
     setEatenIndex(-1);
     setCartX(-40);
     setShowCart(false);
-    letterRefs.current = letterRefs.current.slice(0, text.length);
-    
-    let interval: NodeJS.Timeout | null = null;
-    const timeouts: NodeJS.Timeout[] = [];
-    
+    setCartScaleX(1);
+    letterRefs.current = [];
+
+    let current = 0;
+    let direction = 1;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
+    let timeoutIds: ReturnType<typeof setTimeout>[] = [];
+
+    const cleanup = () => {
+      cancelledRef.current = true;
+      if (intervalId !== null) {
+        clearInterval(intervalId);
+        intervalId = null;
+      }
+      timeoutIds.forEach(id => clearTimeout(id));
+      timeoutIds = [];
+    };
+
     const startCycle = () => {
+      if (cancelledRef.current) return;
+
       current = 0;
       direction = 1;
       setEatenIndex(-1);
-      setCartX(0); // Start at 0 instead of -40 to avoid overlapping the cursor block
+      setCartX(0);
       setCartScaleX(1);
       setShowCart(true);
-      
-      if (interval) clearInterval(interval);
-      interval = setInterval(() => {
+
+      if (intervalId !== null) clearInterval(intervalId);
+
+      intervalId = setInterval(() => {
+        if (cancelledRef.current) {
+          if (intervalId !== null) clearInterval(intervalId);
+          return;
+        }
+
         if (direction === 1) {
           // Eating (moving right)
           if (current < letters.length) {
@@ -59,24 +84,35 @@ const WelcomeAnimation = ({ text }: { text: string }) => {
             setEatenIndex(current - 1);
             current--;
           } else {
-            // Reached the start, stop at 0 and fade out
+            // Reached the start, fade out
             setCartX(0);
-            timeouts.push(setTimeout(() => setShowCart(false), 300));
-            if (interval) clearInterval(interval);
-            
+            if (intervalId !== null) {
+              clearInterval(intervalId);
+              intervalId = null;
+            }
+
+            const fadeId = setTimeout(() => {
+              if (!cancelledRef.current) setShowCart(false);
+            }, 300);
+            timeoutIds.push(fadeId);
+
             // Wait before restarting
-            timeouts.push(setTimeout(startCycle, 2500));
+            const restartId = setTimeout(() => {
+              if (!cancelledRef.current) startCycle();
+            }, 2500);
+            timeoutIds.push(restartId);
           }
         }
       }, 150);
     };
 
-    timeouts.push(setTimeout(startCycle, 1500));
-    
-    return () => {
-      timeouts.forEach(clearTimeout);
-      if (interval) clearInterval(interval);
-    };
+    // Give DOM a moment to mount spans before starting
+    const initId = setTimeout(() => {
+      if (!cancelledRef.current) startCycle();
+    }, 1500);
+    timeoutIds.push(initId);
+
+    return cleanup;
   }, [text]);
 
   return (
@@ -101,7 +137,7 @@ const WelcomeAnimation = ({ text }: { text: string }) => {
       {letters.map((char, i) => (
         <span 
           key={i}
-          ref={el => { if (el) letterRefs.current[i] = el; }}
+          ref={el => { letterRefs.current[i] = el; }}
           style={{
             display: 'inline-block',
             opacity: eatenIndex >= i ? 0 : 1,
