@@ -6,7 +6,7 @@ import math
 excel_file = 'BISNIS_GEMARTOPUP_ANALISIS.xlsx'
 xl = pd.ExcelFile(excel_file)
 
-games_dict = {}
+games_list = []
 products_dict = {}
 
 def get_category_and_zone(name):
@@ -26,19 +26,25 @@ def get_category_and_zone(name):
     return category, has_zone
 
 for sheet in xl.sheet_names:
+    # Skip info sheets
     if sheet in ['Dashboard', 'Analisis Detail', 'Catatan & Asumsi', 'Gontak Whatsapp dan SMS Gateway']:
+        continue
+        
+    # Skip competitor/research sheets
+    sheet_upper = sheet.upper()
+    if any(comp in sheet_upper for comp in ['OURA', 'EMPE']):
         continue
         
     df = pd.read_excel(excel_file, sheet_name=sheet)
     if 'LAYANAN' not in df.columns or 'HARGA SILVER' not in df.columns:
         continue
 
-    # Extract base game name by removing provider names
-    game_name = sheet.upper()
-    providers = ['INDOFLAZZ', 'INDOFLAZ', 'INDOLAZ', 'IND', 'OURA STORE', 'OURASTORE', 'OUR', 'EMPESHOP', 'EMPE SHOP']
+    # Extract base game name by removing provider suffix
+    game_name = sheet_upper
+    providers = ['INDOFLAZZ', 'INDOFLAZ', 'INDOLAZ', 'IND']
     for p in providers:
-        if game_name.endswith(p):
-            game_name = game_name[:-len(p)].strip()
+        if game_name.endswith(p) or game_name.endswith(p + " "):
+            game_name = game_name[:game_name.rfind(p)].strip()
             break
             
     if not game_name:
@@ -46,18 +52,24 @@ for sheet in xl.sheet_names:
         
     game_id = game_name.lower().replace(' ', '-').replace(':', '').replace('.', '')
     
-    if game_id not in games_dict:
-        category, has_zone = get_category_and_zone(game_name)
-        games_dict[game_id] = {
-            "id": game_id,
-            "name": game_name,
-            "code": game_name.upper(),
-            "status": "ACTIVE",
-            "category": category,
-            "hasZone": has_zone
-        }
-        products_dict[game_id] = {}
-
+    category, has_zone = get_category_and_zone(game_name)
+    games_list.append({
+        "id": game_id,
+        "name": game_name,
+        "code": game_name.upper(),
+        "status": "ACTIVE",
+        "category": category,
+        "hasZone": has_zone
+    })
+    
+    sheet_products = []
+    p_id = 1
+    
+    # Track added product names to avoid exact duplicates (same name and price)
+    # But if same name and different price, keep both or cheapest? The user said "paket per paketnya"
+    # To be perfectly safe and match the Excel exactly, we append everything except identical rows.
+    seen = set()
+    
     for idx, row in df.iterrows():
         try:
             product_name = str(row['LAYANAN'])
@@ -69,33 +81,31 @@ for sheet in xl.sheet_names:
                 continue
             price = int(price_str)
             
-            if product_name not in products_dict[game_id]:
-                products_dict[game_id][product_name] = price
-            else:
-                if price < products_dict[game_id][product_name]:
-                    products_dict[game_id][product_name] = price
+            unique_key = f"{product_name}_{price}"
+            if unique_key in seen:
+                continue
+            seen.add(unique_key)
+            
+            badge = None
+            if 'pass' in product_name.lower() or 'weekly' in product_name.lower():
+                badge = 'promo'
+                
+            sheet_products.append({
+                "id": p_id,
+                "name": product_name,
+                "price": price,
+                "badge": badge
+            })
+            p_id += 1
         except Exception as e:
             pass
+            
+    products_dict[game_id] = sheet_products
 
-games = list(games_dict.values())
+games = games_list
 games.sort(key=lambda x: x["name"])
 
-products = {}
-for gid, prods in products_dict.items():
-    sheet_products = []
-    p_id = 1
-    for p_name, p_price in prods.items():
-        badge = None
-        if 'pass' in p_name.lower() or 'weekly' in p_name.lower():
-            badge = 'promo'
-        sheet_products.append({
-            "id": p_id,
-            "name": p_name,
-            "price": p_price,
-            "badge": badge
-        })
-        p_id += 1
-    products[gid] = sheet_products
+products = products_dict
 
 catalog = {
     "games": games,
