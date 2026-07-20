@@ -49,9 +49,7 @@
 
 .order-sidebar {
   order: 3;
-  position: sticky;
-  top: 100px;
-  align-self: start;
+  align-self: stretch;
 }
 
 @media (max-width: 1024px) {
@@ -83,6 +81,9 @@
   }
   .order-sidebar {
     order: 2;
+  }
+  .sticky-sidebar {
+    position: static;
   }
 }
 
@@ -192,7 +193,8 @@
 }
 
 .sticky-sidebar {
-  /* removed to avoid double sticky */
+  position: sticky;
+  top: 100px;
 }
 
 .summary-details {
