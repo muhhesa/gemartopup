@@ -15,6 +15,7 @@ const WelcomeAnimation = ({ text }: { text: string }) => {
     setEatenIndex(-1);
     setCartX(-40);
     setShowCart(false);
+    letterRefs.current = letterRefs.current.slice(0, text.length);
     
     let current = 0;
     let direction = 1;
@@ -86,7 +87,7 @@ const WelcomeAnimation = ({ text }: { text: string }) => {
           bottom: '-4px', 
           left: '0px',
           transform: `translateX(${cartX - 16}px) scaleX(${cartScaleX})`,
-          transition: 'transform 0.15s linear, opacity 0.5s ease',
+          transition: 'transform 0.2s linear, opacity 0.5s ease',
           zIndex: 10,
           opacity: showCart ? 1 : 0,
           pointerEvents: 'none'
@@ -99,17 +100,18 @@ const WelcomeAnimation = ({ text }: { text: string }) => {
       
       {letters.map((char, i) => (
         <span 
-          key={`${text}-${i}`}
-          ref={el => { letterRefs.current[i] = el; }}
+          key={i}
+          ref={el => { if (el) letterRefs.current[i] = el; }}
           style={{
             display: 'inline-block',
             opacity: eatenIndex >= i ? 0 : 1,
             transform: eatenIndex >= i ? 'translateY(10px) scale(0)' : 'translateY(0) scale(1)',
             transition: 'all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-            color: 'inherit'
+            color: 'inherit',
+            whiteSpace: 'pre'
           }}
         >
-          {char === ' ' ? '\u00A0' : char}
+          {char}
         </span>
       ))}
     </div>
