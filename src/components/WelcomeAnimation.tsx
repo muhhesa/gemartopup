@@ -11,6 +11,11 @@ const WelcomeAnimation = ({ text }: { text: string }) => {
   const [cartScaleX, setCartScaleX] = useState(1);
 
   useEffect(() => {
+    // Immediately reset state when text changes
+    setEatenIndex(-1);
+    setCartX(-40);
+    setShowCart(false);
+    
     let current = 0;
     let direction = 1;
     let interval: NodeJS.Timeout;
@@ -94,7 +99,7 @@ const WelcomeAnimation = ({ text }: { text: string }) => {
       
       {letters.map((char, i) => (
         <span 
-          key={i}
+          key={`${text}-${i}`}
           ref={el => { letterRefs.current[i] = el; }}
           style={{
             display: 'inline-block',
@@ -104,7 +109,7 @@ const WelcomeAnimation = ({ text }: { text: string }) => {
             color: 'inherit'
           }}
         >
-          {char}
+          {char === ' ' ? '\u00A0' : char}
         </span>
       ))}
     </div>
