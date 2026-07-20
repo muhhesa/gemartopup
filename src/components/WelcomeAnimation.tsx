@@ -19,7 +19,7 @@ const WelcomeAnimation = ({ text }: { text: string }) => {
       current = 0;
       direction = 1;
       setEatenIndex(-1);
-      setCartX(-40);
+      setCartX(0); // Start at 0 instead of -40 to avoid overlapping the cursor block
       setCartScaleX(1);
       setShowCart(true);
       
@@ -53,8 +53,8 @@ const WelcomeAnimation = ({ text }: { text: string }) => {
             setEatenIndex(current - 1);
             current--;
           } else {
-            // Reached the start, drive off screen left
-            setCartX(-40);
+            // Reached the start, stop at 0 and fade out
+            setCartX(0);
             setTimeout(() => setShowCart(false), 300);
             clearInterval(interval);
             
