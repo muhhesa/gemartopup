@@ -176,24 +176,17 @@ export default function OrderPage() {
       }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>
           <h1 style={{ display: 'flex', alignItems: 'center', margin: 0 }}>
-            {game.name}
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ color: '#00ffcc', marginLeft: '12px' }}>
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-              <polyline points="22 4 12 14.01 9 11.01"></polyline>
-            </svg>
+            LAYANAN : {game.name}
           </h1>
           <span style={{ fontSize: '12px', color: '#888', marginTop: '6px', letterSpacing: '2px', textTransform: 'uppercase' }}>
-            {game.category === 'game' ? 'OFFICIAL GAME STORE' : 'DIGITAL VOUCHER'} // AUTO PROCESS
+            OFFICIAL GAME STORE
           </span>
         </div>
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '8px' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', justifyContent: 'center' }}>
           <div className="sys-status" style={{ display: 'flex', alignItems: 'center', gap: '6px', backgroundColor: 'rgba(0, 255, 0, 0.05)' }}>
             <span style={{ width: '6px', height: '6px', backgroundColor: 'var(--success)', borderRadius: '50%' }}></span>
             {t("order.sysready")}
           </div>
-          <span style={{ fontSize: '10px', color: '#555', fontFamily: 'monospace' }}>
-            SECURE: 256-BIT SSL
-          </span>
         </div>
       </div>
 
@@ -262,10 +255,11 @@ export default function OrderPage() {
               ))}
               
               {config.needsNicknameCheck && (
-                <div className="form-control" style={{ display: 'flex', alignItems: 'flex-end' }}>
+                <div className="form-control" style={{ display: 'flex', flexDirection: 'column' }}>
+                   <label style={{ visibility: 'hidden', marginBottom: '8px' }}>Cek</label>
                    <button 
                     className="btn-primary" 
-                    style={{ height: '48px', width: '100%' }}
+                    style={{ flex: 1, width: '100%', minHeight: '42px', padding: '0 16px', fontSize: '14px', letterSpacing: '1px' }}
                     onClick={handleCheckNickname}
                     disabled={isChecking || !isFieldsComplete()}
                    >
