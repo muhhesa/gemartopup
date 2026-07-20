@@ -170,7 +170,7 @@ export default function OrderPage() {
       </div>
 
       <div className="order-header terminal-box">
-        <h1>{t("order.target")}: {game.name}</h1>
+        <h1>{game.name}</h1>
         <div className="sys-status">{t("order.sysready")}</div>
       </div>
 
