@@ -22,6 +22,18 @@ const SERVER_OPTIONS = [
   { value: "TW,HK,MO", label: "TW,HK,MO" }
 ];
 
+// Server list persis seperti yang ditampilkan Indoflazz untuk Harry Potter: Magic Awakened
+const HP_SERVER_OPTIONS = [
+  { value: "Thunderbird", label: "Thunderbird" },
+  { value: "Phoenix", label: "不死鳥 (Phoenix)" },
+  { value: "Niffler", label: "니플러 (Niffler)" },
+  { value: "Ashwinder", label: "Ashwinder" },
+  { value: "Sphinx", label: "Sphinx" },
+  { value: "Rougarou", label: "Rougarou" },
+  { value: "Erumpent", label: "Erumpent" },
+  { value: "Unicorn", label: "ユニコーン (Unicorn)" }
+];
+
 export const GAME_CONFIGS: Record<string, GameConfig> = {
   // GAME CATEGORY
   "mlbb": {
@@ -34,8 +46,7 @@ export const GAME_CONFIGS: Record<string, GameConfig> = {
   },
   "aov": {
     fields: [
-      { id: "userId", labelId: "User ID", type: "number", required: true },
-      { id: "zoneId", labelId: "Zone ID / Server", type: "number", required: true }
+      { id: "userId", labelId: "User ID", type: "number", required: true }
     ],
     needsNicknameCheck: true,
     guideDesc: "Untuk menemukan User ID Anda, buka menu profil di dalam game. Masukkan User ID tersebut di sini."
@@ -84,9 +95,18 @@ export const GAME_CONFIGS: Record<string, GameConfig> = {
   },
   "point-blank": {
     fields: [
-      { id: "userId", labelId: "Username / User ID", type: "text", required: true }
+      { id: "userId", labelId: "Nomor WhatsApp", type: "number", required: true }
     ],
-    needsNicknameCheck: true
+    needsNicknameCheck: false,
+    guideDesc: "Masukkan nomor WhatsApp Anda. Voucher Cash PB akan dikirim ke nomor tersebut / tercantum di keterangan invoice."
+  },
+  "harry-potter-magic-awakened": {
+    fields: [
+      { id: "userId", labelId: "User ID", type: "number", required: true },
+      { id: "zoneId", labelId: "Server", type: "dropdown", options: HP_SERVER_OPTIONS, required: true }
+    ],
+    needsNicknameCheck: true,
+    guideDesc: "Untuk menemukan ID Anda, buka Harry Potter: Magic Awakened. Klik pada gambar di sebelah tempat tidur di kamar, Anda akan menemukannya pada kolom User ID. Contoh: 110008785."
   },
   "honkai--star-rail": {
     fields: [
@@ -113,15 +133,17 @@ export const DEFAULT_CONFIGS: Record<string, GameConfig> = {
     ],
     needsNicknameCheck: true
   },
+  // Semua produk voucher di Indoflazz (Spotify, Google Play, Steam, Nintendo, Hotelmurah, dll)
+  // dikirim ke Nomor HP/WhatsApp, BUKAN email. Jangan diubah balik ke email.
   "voucher": {
     fields: [
-      { id: "userId", labelId: "Email Tujuan (Opsional)", type: "email", required: false }
+      { id: "userId", labelId: "Nomor HP / WhatsApp", type: "number", required: true }
     ],
     needsNicknameCheck: false
   },
   "pulsa": {
     fields: [
-      { id: "userId", labelId: "Nomor HP / ID Pelanggan", type: "number", required: true }
+      { id: "userId", labelId: "Nomor HP", type: "number", required: true }
     ],
     needsNicknameCheck: false
   }
@@ -137,6 +159,17 @@ export const getConfig = (gameId: string, category: string): GameConfig => {
         { id: "userId", labelId: "Nomor HP / Email Akun Vidio", type: "text", required: true }
       ],
       needsNicknameCheck: false
+    };
+  }
+
+  // PLN pakai Nomor Meteran, BUKAN Nomor HP — beda dari produk pulsa lainnya
+  if (gameId === 'pln') {
+    return {
+      fields: [
+        { id: "userId", labelId: "Nomor Meteran", type: "number", required: true }
+      ],
+      needsNicknameCheck: false,
+      guideDesc: "Masukkan Nomor Meteran/ID Pelanggan PLN Anda (bukan nomor HP)."
     };
   }
 
