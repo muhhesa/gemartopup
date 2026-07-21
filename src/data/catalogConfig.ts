@@ -53,8 +53,7 @@ export const GAME_CONFIGS: Record<string, GameConfig> = {
   },
   "undawn": {
     fields: [
-      { id: "userId", labelId: "User ID", type: "number", required: true },
-      { id: "zoneId", labelId: "Server", type: "number", required: true }
+      { id: "userId", labelId: "User ID", type: "number", required: true }
     ],
     needsNicknameCheck: true
   },
