@@ -83,26 +83,41 @@ export default function OrderPage() {
     return Object.values(fieldValues).join(" ");
   };
 
-  const handleCheckNickname = () => {
+  const handleCheckNickname = async () => {
     if (!isFieldsComplete()) {
       alert(t("order.alert"));
       return;
     }
-    
+
     setIsChecking(true);
     setCheckError(null);
     setNickname(null);
 
-    // Simulate API call and validation
-    setTimeout(() => {
-      const primaryVal = fieldValues[config.fields[0].id] || "";
-      if (primaryVal.length < 5 && config.fields[0].type !== 'email') {
-        setCheckError("AKUN TIDAK DITEMUKAN / INVALID ID");
+    try {
+      const res = await fetch('/api/check-nickname', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          gameId,
+          userId: fieldValues[config.fields[0].id],
+          zoneId: config.fields[1] ? fieldValues[config.fields[1].id] : null,
+        }),
+      });
+      const result = await res.json();
+
+      if (result.unsupported) {
+        // Game belum didukung API -> anggap lolos, tapi kasih tau nickname tidak bisa diverifikasi otomatis
+        setNickname("Tidak dapat diverifikasi otomatis");
+      } else if (result.success) {
+        setNickname(result.nickname);
       } else {
-        setNickname(`PLAYER_${primaryVal.substring(0,4)}`);
+        setCheckError(result.message || "AKUN TIDAK DITEMUKAN / INVALID ID");
       }
+    } catch (err) {
+      setCheckError("Gagal terhubung ke server pengecekan. Coba lagi.");
+    } finally {
       setIsChecking(false);
-    }, 1000);
+    }
   };
 
   const handleConfirmOrder = async () => {
