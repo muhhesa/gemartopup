@@ -53,10 +53,10 @@ export default function RecentPurchasePopup() {
       setTimeout(() => {
         setIsVisible(false);
         
-        // Wait 2 seconds before showing next one
+        // Wait 12 seconds before showing next one (so it doesn't look like spam)
         setTimeout(() => {
           setCurrentIndex((prev) => (prev + 1) % transactions.length);
-        }, 2000);
+        }, 12000);
       }, 4000);
     };
 
