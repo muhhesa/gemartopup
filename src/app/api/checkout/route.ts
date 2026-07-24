@@ -32,7 +32,7 @@ export async function POST(req: Request) {
     }
 
     const data = await req.json();
-    const { gameId, nominalId, paymentId, targetId, nickname, whatsapp } = data;
+    const { gameId, nominalId, paymentId, targetId, nickname, whatsapp, voucherCode } = data;
 
     // 0. Validasi Input Dasar
     if (!targetId || typeof targetId !== 'string' || targetId.trim().length === 0) {
@@ -64,9 +64,37 @@ export async function POST(req: Request) {
     // 4. Kalkulasi Total di Backend
     const price = nominalData.price;
     const fee = paymentData.fee;
-    const totalPrice = price + fee;
+    let totalPrice = price + fee;
     const packageName = `${nominalData.name} (${game.name})`;
     const paymentMethod = paymentData.name;
+
+    // 4b. Validasi & terapkan voucher (kalau ada) — semua dicek di server,
+    // jangan pernah percaya nominal diskon dari client.
+    let appliedVoucher: { code: string; amount: number } | null = null;
+    if (voucherCode && typeof voucherCode === 'string') {
+      const { data: voucher } = await supabaseAdmin
+        .from('vouchers')
+        .select('code, amount, used, expires_at')
+        .eq('code', voucherCode.trim().toUpperCase())
+        .single();
+
+      if (!voucher) {
+        return NextResponse.json({ error: 'Kode voucher tidak ditemukan' }, { status: 400 });
+      }
+      if (voucher.used) {
+        return NextResponse.json({ error: 'Kode voucher sudah pernah dipakai' }, { status: 400 });
+      }
+      if (new Date(voucher.expires_at).getTime() < Date.now()) {
+        return NextResponse.json({ error: 'Kode voucher sudah kedaluwarsa' }, { status: 400 });
+      }
+
+      // Jangan sampai diskon bikin total jadi nol/negatif.
+      const discount = Math.min(voucher.amount, totalPrice - 1000);
+      if (discount > 0) {
+        totalPrice -= discount;
+        appliedVoucher = { code: voucher.code, amount: discount };
+      }
+    }
 
     // 5. Buat Invoice ID
     // Pakai crypto.randomBytes (bukan Math.random) supaya tidak predictable,
@@ -84,7 +112,9 @@ export async function POST(req: Request) {
       price: price,
       fee: fee,
       total: totalPrice,
-      status: 'AWAITING_PAYMENT'
+      status: 'AWAITING_PAYMENT',
+      voucher_code: appliedVoucher?.code || null,
+      voucher_discount: appliedVoucher?.amount || null,
     };
 
     // 7. Simpan ke Supabase menggunakan Admin Key (Kebal RLS)
@@ -93,6 +123,15 @@ export async function POST(req: Request) {
     if (insertError) {
       console.error("Supabase Insert Error:", insertError);
       return NextResponse.json({ error: 'Gagal menyimpan pesanan ke database' }, { status: 500 });
+    }
+
+    // Kunci voucher supaya tidak bisa dipakai dobel (race condition minimal
+    // karena baris ini cuma jalan setelah insert order sukses).
+    if (appliedVoucher) {
+      await supabaseAdmin
+        .from('vouchers')
+        .update({ used: true, used_invoice_id: invoiceId })
+        .eq('code', appliedVoucher.code);
     }
 
     // 8. Kirim Notifikasi Telegram

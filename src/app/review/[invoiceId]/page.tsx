@@ -15,13 +15,15 @@ export default function ReviewPage() {
   const [reviewRating, setReviewRating] = useState<number>(5);
   const [reviewComment, setReviewComment] = useState<string>("");
   const [isReviewSubmitted, setIsReviewSubmitted] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string>("");
+  const [voucherCode, setVoucherCode] = useState<string | null>(null);
   const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    if (localStorage.getItem(`gemartopup_reviewed_${invoiceId}`)) {
-      setIsReviewSubmitted(true);
-    }
-
+    // Sumber kebenaran status "sudah review" adalah data dari server
+    // (kolom has_reviewed di tabel orders), bukan localStorage — localStorage
+    // gampang dihapus/diakalin dan tidak sinkron antar device.
     const fetchInvoice = async () => {
       try {
         const res = await fetch(`/api/invoice/${invoiceId}`);
@@ -38,6 +40,9 @@ export default function ReviewPage() {
             total: Number(data.total),
             gameId: data.game_id || invoiceId.split('-')[1]?.toLowerCase() || "general"
           });
+          if (data.has_reviewed) {
+            setIsReviewSubmitted(true);
+          }
         } else {
           setError(result.error || "Data pesanan tidak ditemukan.");
         }
@@ -46,48 +51,37 @@ export default function ReviewPage() {
       }
     };
 
-    // Try to get invoice data from localStorage
-    const savedData = localStorage.getItem("gemartopup_pending_order");
-    if (savedData) {
-      try {
-        const parsed = JSON.parse(savedData);
-        // Ensure this pending order actually matches the invoice we are reviewing
-        if (parsed.invoiceId === invoiceId) {
-          setInvoiceData(parsed);
-        } else {
-          fetchInvoice();
-        }
-      } catch (e) {
-        fetchInvoice();
-      }
-    } else {
-      fetchInvoice();
-    }
+    fetchInvoice();
   }, [invoiceId]);
 
-  const handleSubmit = () => {
-    const gameIdFromInvoice = invoiceId.split('-')[1]?.toLowerCase();
-    const gameId = invoiceData?.gameId || gameIdFromInvoice || "general";
+  const handleSubmit = async () => {
+    if (isSubmitting) return;
+    setSubmitError("");
+    setIsSubmitting(true);
+    try {
+      const res = await fetch('/api/review', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          invoiceId,
+          rating: reviewRating,
+          comment: reviewComment.trim(),
+        }),
+      });
+      const result = await res.json();
 
-    const reviews = JSON.parse(localStorage.getItem(`gemartopup_reviews_${gameId}`) || "[]");
-    const targetName = invoiceData?.nickname || invoiceData?.targetId || "User";
-    const maskedName = targetName.length > 4 
-      ? targetName.substring(0, 4) + "****" + targetName.substring(targetName.length - 2)
-      : targetName + "****";
+      if (!res.ok || !result.success) {
+        setSubmitError(result.message || "Gagal mengirim ulasan.");
+        return;
+      }
 
-    const newReview = {
-      id: `rev-${Date.now()}`,
-      name: maskedName,
-      item: invoiceData?.packageName || "Layanan Topup",
-      date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
-      rating: reviewRating,
-      comment: reviewComment.trim() || "Sangat puas dengan layanannya"
-    };
-
-    reviews.unshift(newReview);
-    localStorage.setItem(`gemartopup_reviews_${gameId}`, JSON.stringify(reviews));
-    localStorage.setItem(`gemartopup_reviewed_${invoiceId}`, "true");
-    setIsReviewSubmitted(true);
+      setVoucherCode(result.voucherCode || null);
+      setIsReviewSubmitted(true);
+    } catch (err) {
+      setSubmitError("Gagal menghubungi server. Coba lagi sebentar.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   if (error) {
@@ -155,12 +149,17 @@ export default function ReviewPage() {
               onChange={(e) => setReviewComment(e.target.value)}
             ></textarea>
             
+            {submitError && (
+              <p style={{ color: 'var(--danger)', fontSize: '13px', marginBottom: '16px', textAlign: 'center' }}>{submitError}</p>
+            )}
+
             <button 
               className="btn-primary" 
-              style={{ width: '100%', padding: '16px', fontSize: '14px', letterSpacing: '1px' }}
+              style={{ width: '100%', padding: '16px', fontSize: '14px', letterSpacing: '1px', opacity: isSubmitting ? 0.6 : 1 }}
               onClick={handleSubmit}
+              disabled={isSubmitting}
             >
-              KIRIM ULASAN SEKARANG
+              {isSubmitting ? 'MENGIRIM...' : 'KIRIM ULASAN SEKARANG'}
             </button>
           </>
         ) : (
@@ -173,9 +172,15 @@ export default function ReviewPage() {
               </div>
             </div>
             <h2 style={{ color: 'var(--success)', marginBottom: '16px', letterSpacing: '1px' }}>ULASAN TERKIRIM</h2>
-            <p style={{ marginBottom: '32px', color: 'var(--text-dim)', fontSize: '14px', lineHeight: '1.6' }}>
+            <p style={{ marginBottom: voucherCode ? '20px' : '32px', color: 'var(--text-dim)', fontSize: '14px', lineHeight: '1.6' }}>
               Terima kasih! Ulasan Anda sangat berarti bagi kami dan telah berhasil dipublikasikan untuk membantu calon pembeli lainnya.
             </p>
+            {voucherCode && (
+              <div style={{ padding: '16px', background: 'rgba(255, 145, 0, 0.06)', border: '1px dashed var(--primary-color)', borderRadius: '4px', marginBottom: '32px' }}>
+                <p style={{ fontSize: '12px', color: 'var(--text-dim)', marginBottom: '8px' }}>KODE VOUCHER UNTUK PEMBELIAN BERIKUTNYA:</p>
+                <p style={{ fontWeight: 'bold', fontFamily: 'monospace', fontSize: '18px', color: 'var(--primary-color)', letterSpacing: '1px' }}>{voucherCode}</p>
+              </div>
+            )}
             <Link href="/" className="btn-secondary" style={{ display: 'inline-block', padding: '12px 32px' }}>
               KEMBALI KE BERANDA
             </Link>

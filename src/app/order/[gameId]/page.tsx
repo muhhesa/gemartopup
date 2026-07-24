@@ -41,6 +41,7 @@ export default function OrderPage() {
   const [selectedNominal, setSelectedNominal] = useState<number | null>(null);
   const [selectedPayment, setSelectedPayment] = useState<string | null>(null);
   const [whatsapp, setWhatsapp] = useState<string>("");
+  const [voucherCode, setVoucherCode] = useState<string>("");
 
   const [nickname, setNickname] = useState<string | null>(null);
   const [isChecking, setIsChecking] = useState(false);
@@ -146,7 +147,8 @@ export default function OrderPage() {
           paymentId: selectedPayment,
           targetId,
           whatsapp,
-          nickname: config.needsNicknameCheck ? nickname : null
+          nickname: config.needsNicknameCheck ? nickname : null,
+          voucherCode: voucherCode.trim() || undefined
         })
       });
 
@@ -389,6 +391,22 @@ export default function OrderPage() {
                   <path d="M11 7h2v2h-2zm0 4h2v6h-2zm1-9C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/>
                 </svg>
                 Informasi: Bukti transaksi akan kami kirim ke WhatsApp yang kamu isi di atas.
+              </div>
+
+              <div style={{ marginTop: '16px' }}>
+                <label style={{ fontSize: '12px', color: 'var(--text-dim)', display: 'block', marginBottom: '6px' }}>
+                  KODE VOUCHER (OPSIONAL)
+                </label>
+                <input
+                  type="text"
+                  className="input-field"
+                  placeholder="Contoh: REV-A1B2C3D4"
+                  value={voucherCode}
+                  onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+                />
+                <div style={{ fontSize: '11px', fontStyle: 'italic', color: 'var(--text-dim)', marginTop: '4px' }}>
+                  *Diskon dari kode voucher akan diverifikasi & diterapkan otomatis saat kamu menekan "Bayar Sekarang".
+                </div>
               </div>
             </div>
           </section>

@@ -82,13 +82,37 @@ export default function ReviewsComponent({ gameId, products }: { gameId?: string
 
   useEffect(() => {
     const mockReviews = products && products.length > 0 ? generateMockReviews(products, gameId) : [];
-    
-    if (gameId) {
-      const savedReviews = JSON.parse(localStorage.getItem(`gemartopup_reviews_${gameId}`) || "[]");
-      setReviews([...savedReviews, ...mockReviews]);
-    } else {
+
+    if (!gameId) {
       setReviews(mockReviews);
+      return;
     }
+
+    // Ulasan asli sekarang datang dari Supabase (lewat /api/reviews), bukan
+    // localStorage lagi — supaya konsisten buat semua pengunjung, bukan cuma
+    // yang submit dari browser yang sama.
+    let cancelled = false;
+    fetch(`/api/reviews?gameId=${encodeURIComponent(gameId)}`)
+      .then((res) => res.json())
+      .then((result) => {
+        if (cancelled) return;
+        const realReviews: Review[] = (result?.data || []).map((r: any) => ({
+          id: r.id,
+          name: r.display_name,
+          item: '',
+          date: new Date(r.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
+          rating: r.rating,
+          comment: r.comment || 'Sangat puas dengan layanannya',
+        }));
+        setReviews([...realReviews, ...mockReviews]);
+      })
+      .catch(() => {
+        if (!cancelled) setReviews(mockReviews);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [gameId, products]);
 
   // Use a mathematically correct and realistic baseline distribution without 1, 2, or 3 stars

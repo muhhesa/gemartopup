@@ -18,6 +18,7 @@ const SAFE_INVOICE_COLUMNS = [
   'status',
   'created_at',
   'game_id',
+  'has_reviewed',
 ].join(', ');
 
 export async function GET(request: Request, { params }: { params: Promise<{ invoiceId: string }> }) {
