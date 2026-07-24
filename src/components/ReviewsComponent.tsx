@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import catalogData from "@/data/catalog.json";
 import "./ReviewsComponent.css";
 
 interface Review {
